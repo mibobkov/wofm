@@ -12,22 +12,22 @@ SET_NAME = 'set_name'
 # Forest - kill random things
 # Arena - pvp
 
-locationtexts = []
+locationtexts = {}
 locationtexts['village'] = "You are in the village\n"
 locationtexts['forest'] = "You are in the forest\n"
 locationtexts['arena'] = "You are in the arena\n"
 
-actionsin = []
+actionsin = {}
 actionsin['village'] = [['Stand in the middle of the village and do nothing\n'], ['Go somewhere']]
 actionsin['arena'] = [['Look around\n'], ['Go somewhere'] ]
 actionsin['forest'] = [['Bam bam, I am in the forest.\n'], ['Go somewhere']]
 
-paths = []
+paths = {}
 paths['village'] = ['arena', 'forest']
 paths['forest'] = ['village']
 paths['arena'] = ['village']
 
-pathkeyboards = []
+pathkeyboards = {}
 for path in paths:
     pathkeyboards[path] = []
     for place in paths[path]:
@@ -74,6 +74,7 @@ def message(bot, update):
     elif user.status == 'going':
         if text in paths[user.location]:
             user.location = text
+            user.status = 'ready'
             bot.send_message(chat_id=update.message.chat_id, text=user.stats_text() + '\n\n\n', reply_markup=telegram.ReplyKeyboardMarkup(actionsin[user.location]))
     else:
         if text == 'Go somewhere':

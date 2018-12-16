@@ -40,25 +40,32 @@ class User:
     name= ""
     status= SET_NAME
 
+    def __User__(self, bot, chat_id):
+        self.bot = bot
+        self.chat_id = chat_id
+
     def set_name(self, name):
         self.name = name
 
     def stats_text(self):
         return "{}\n" \
                "You are in {}\n".format(self.name, self.location)
+    def send_message(self, text, keyboard=None):
+        if keyboard != None:
+            markup = telegram.ReplyKeyboardMarkup(keyboard)
+        else:
+            markup = telegram.ReplyKeyboardRemove()
+        self.bot.send_message(chat_id=self.chat_id, text=text, reply_markup=markup)
 
 updater = Updater(token=TOKEN)
-
 dispatcher = updater.dispatcher
-
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
-# AVAILABLE_ACTIONS = [['Do nothing']]
-# default_markup = telegram.ReplyKeyboardMarkup(AVAILABLE_ACTIONS)
 def register_user(bot, update):
-    users[update.message.chat_id] = User()
-    bot.send_message(chat_id=update.message.chat_id, text="Enter your name")
+    chat_id = update.message.chat_id
+    users[chat_id] = User(bot, chat_id)
+    bot.send_message(chat_id=chat_id, text="Enter your name")
 
 def message(bot, update):
     if update.message.chat_id not in users:
@@ -69,21 +76,20 @@ def message(bot, update):
     if user.status == SET_NAME:
         user.set_name(text)
         user.status = 'ready'
-        bot.send_message(chat_id=update.message.chat_id, text='You are ' + text + ' now', reply_markup=telegram.ReplyKeyboardMarkup(actionsin[user.location]))
+        user.send_message('You are ' + text + ' now', keyboard=actionsin[user.location])
         return
     elif user.status == 'going':
         if text in paths[user.location]:
             user.location = text
             user.status = 'ready'
-            bot.send_message(chat_id=update.message.chat_id, text=user.stats_text() + '\n\n\n', reply_markup=telegram.ReplyKeyboardMarkup(actionsin[user.location]))
+            user.send_message(user.stats_text() + '\n\n\n', keyboard=actionsin[user.location])
     else:
         if text == 'Go somewhere':
             user.status = 'going'
-            bot.send_message(chat_id=update.message.chat_id, text='Where do you want to go?', reply_markup=telegram.ReplyKeyboardMarkup(pathkeyboards[user.location]))
+            user.send_message('Where do you want to go?', keyboard=pathkeyboards[user.location])
             return
         else:
-            actiontext = ''
-            bot.send_message(chat_id=update.message.chat_id, text=user.stats_text() + '\n\n\n' + actiontext, reply_markup=telegram.ReplyKeyboardMarkup(actionsin[user.location]))
+            user.send_message(user.stats_text(), keyboard=actionsin[user.location])
         return
 
 

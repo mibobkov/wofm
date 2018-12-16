@@ -7,7 +7,7 @@ class User:
     name= ""
     status= 'set_name'
 
-    def __User__(self, bot, chat_id):
+    def __init__(self, bot, chat_id):
         self.bot = bot
         self.chat_id = chat_id
 

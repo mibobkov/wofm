@@ -29,7 +29,7 @@ def go_to_location(user, message):
     if message in user.location.prettypaths:
         user.location = Location.toEnum(message)
         user.status = 'ready'
-        user.send_message(user.stats_text() + '\n\n\n', keyboard=actionsin[user.location])
+        user.send_message(user.stats_text() + '\n\n\n' + user.location.text, keyboard=actionsin[user.location])
 
 def choose_location(user, message):
     user.status = 'going'

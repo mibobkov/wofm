@@ -25,8 +25,8 @@ class User:
 
     def stats_text(self):
         return "Name: {}\n" \
-               "Health: {}/{}" \
-               "Mana: {}/{}" \
+               "Health: {}/{}\n" \
+               "Mana: {}/{}\n" \
                "You are in {}\n".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.location)
 
     def receive_damage(self, damage):

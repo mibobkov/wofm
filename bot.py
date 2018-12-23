@@ -43,14 +43,15 @@ fightactions = [['Attack']]
 def fight_monsters(user, message):
     monster = Monster(*ratparams)
     user.fighting = monster
+    user.status = 'fighting'
     user.send_message('You are fighting a {}\n'
                       '{}/{} hp\n'.format(monster.name, monster.health, monster.maxhealth), keyboard=fightactions)
 
-    if user.mana > 20:
-        user.mana -= 20
-        user.send_message('You fought a monster.\n You used 20 mana, but won!\n', keyboard=actionsin[user.location])
-    else:
-        user.send_message("You didn't have enough mana to defeat a monster, so you ran away.\n", keyboard=actionsin[user.location])
+    # if user.mana > 20:
+    #     user.mana -= 20
+    #     user.send_message('You fought a monster.\n You used 20 mana, but won!\n', keyboard=actionsin[user.location])
+    # else:
+    #     user.send_message("You didn't have enough mana to defeat a monster, so you ran away.\n", keyboard=actionsin[user.location])
 
 def attack(user, message):
     if user.fighting != None:
@@ -61,6 +62,7 @@ def attack(user, message):
         text = 'You attacked and were attacked (3rd Law of Newton)\n' + \
                           'You dealt {} damage and received {} damage\n'.format(damage_dealt, damage_received)
         if user.fighting.health == 0:
+            user.fighting = None
             text += 'You killed the monster!'
             keyboard = actionsin[user.location]
         else:
@@ -84,6 +86,8 @@ def message(bot, update):
         choose_location(user, message)
     elif message == 'Fight monsters' and user.location == 'forest':
         fight_monsters(user, message)
+    elif message == 'Attack' and user.status == 'fighting':
+        attack(user, message)
     else:
         user.send_message(user.stats_text(), keyboard=actionsin[user.location])
 

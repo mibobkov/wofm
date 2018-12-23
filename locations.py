@@ -35,6 +35,7 @@ actionsin = {}
 actionsin[Location.VILLAGE] = [['Stand in the middle of the village and do nothing'], ['Go somewhere']]
 actionsin[Location.ARENA] = [['Look around'], ['Go somewhere'] ]
 actionsin[Location.FOREST] = [['Bam bam, I am in the forest.'], ['Fight monsters'], ['Go somewhere']]
+actionsin[Location.LAKE] = [['Look at the big fucking lake in total awe.'], ['Go somewhere']]
 
 pathkeyboards = {}
 for location in Location:

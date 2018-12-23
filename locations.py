@@ -8,9 +8,9 @@ locationtexts['forest'] = "You are in the forest\n"
 locationtexts['arena'] = "You are in the arena\n"
 
 actionsin = {}
-actionsin['village'] = [['Stand in the middle of the village and do nothing\n'], ['Go somewhere']]
-actionsin['arena'] = [['Look around\n'], ['Go somewhere'] ]
-actionsin['forest'] = [['Bam bam, I am in the forest.\n'], ['Go somewhere']]
+actionsin['village'] = [['Stand in the middle of the village and do nothing'], ['Go somewhere']]
+actionsin['arena'] = [['Look around'], ['Go somewhere'] ]
+actionsin['forest'] = [['Bam bam, I am in the forest.'], ['Fight monsters'], ['Go somewhere']]
 
 paths = {}
 paths['village'] = ['arena', 'forest']

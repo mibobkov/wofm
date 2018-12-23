@@ -28,7 +28,7 @@ class User:
         return u'\U0001F466''<b>{}</b>\n' \
                u'\U0001F534'"Health: {}/{}\n" \
                u'\U0001F535'"Mana: {}/{}\n" \
-               "{}Location: {}\n".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.location.emoji, self.location.cstring)
+               "{}Location: {}\n\n\n".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.location.emoji, self.location.cstring)
 
     def die(self):
         self.status == 'ready'

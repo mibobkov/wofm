@@ -8,12 +8,11 @@ class Location(Enum):
     VILLAGE = 1, 'village', 'You are in the village\n', ['arena', 'forest']
     FOREST = 2, 'forest', 'You are in the forest\n', ['village']
     ARENA = 3, 'arena', 'You are in the arena\n', ['village']
-    def __new__(cls, key, name, text, paths):
-        obj = object.__new__(cls)
-        obj._value_ = key
-        obj.text = text
-        obj.name = name
-        obj.paths = paths
+    def __init__(self, key, string, text, paths):
+        self.key = key
+        self.text = text
+        self.string = string
+        self.paths = paths
     @staticmethod
     def toEnum(string):
         for loc in Location:

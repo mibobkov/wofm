@@ -24,7 +24,7 @@ class Location(Enum):
     def prettypaths(self):
         prettypaths = []
         for path in self.paths:
-            prettypaths.append(self.toEnum(path).emoji+path)
+            prettypaths.append(self.toEnum(path).emoji+path.capitalize())
         return prettypaths
 
     @property

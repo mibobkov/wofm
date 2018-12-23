@@ -25,7 +25,7 @@ class User:
 
     def stats_text(self):
         return "Name: {}\n" \
-               u'U00002764'"Health: {}/{}\n" \
+               u'\U00002764'"Health: {}/{}\n" \
                "Mana: {}/{}\n" \
                "You are in {}\n".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.location)
 

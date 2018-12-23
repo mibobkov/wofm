@@ -16,10 +16,17 @@ class Location(Enum):
         self.paths = paths
     @staticmethod
     def toEnum(string):
-        string = string.lower()
+        string = string.encode('ascii', 'ignore').lower()
         for loc in Location:
             if loc.string == string:
                 return loc
+    @property
+    def prettypaths(self):
+        prettypaths = []
+        for path in self.paths:
+            prettypaths.append(self.toEnum(path).emoji+path)
+        return prettypaths
+
     @property
     def cstring(self):
         return self.string.capitalize()
@@ -31,7 +38,7 @@ actionsin[Location.FOREST] = [['Bam bam, I am in the forest.'], ['Fight monsters
 
 pathkeyboards = {}
 for location in Location:
-    path = location.paths
+    path = location.prettypaths
     pathkeyboards[location] = []
     for place in path:
         pathkeyboards[location].append([place])

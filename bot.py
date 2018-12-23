@@ -26,7 +26,7 @@ def set_user_name(user, message):
     user.send_message('You are ' + message + ' now', keyboard=actionsin[user.location])
 
 def go_to_location(user, message):
-    if message in user.location.paths:
+    if message in user.location.prettypaths:
         user.location = Location.toEnum(message)
         user.status = 'ready'
         user.send_message(user.stats_text() + '\n\n\n', keyboard=actionsin[user.location])

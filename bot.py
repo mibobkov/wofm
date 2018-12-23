@@ -23,7 +23,7 @@ def register_user(bot, update):
 def set_user_name(user, message):
     user.set_name(message)
     user.status = 'ready'
-    user.send_message('You are ' + message + ' now', keyboard=actionsin[user.location])
+    user.send_message(user.stats_text() + 'You are ' + message + ' now\n', keyboard=actionsin[user.location])
 
 def go_to_location(user, message):
     if message in user.location.prettypaths:
@@ -34,8 +34,6 @@ def go_to_location(user, message):
 def choose_location(user, message):
     user.status = 'going'
     user.send_message('Where do you want to go?', keyboard=pathkeyboards[user.location])
-
-
 
 rat_params = ('Rat', 'This rat is agressive because it is ugly\n', 10, 1, 2)
 fightactions = [['Attack']]

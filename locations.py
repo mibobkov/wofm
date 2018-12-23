@@ -1,6 +1,17 @@
 # Village - spawn point
 # Forest - kill random things
 # Arena - pvp
+from enum import Enum
+
+
+class Location(Enum):
+    VILLAGE = 1
+    FOREST = 2
+    ARENA = 3
+
+    # def text(self):
+
+
 
 locationtexts = {}
 locationtexts['village'] = "You are in the village\n"

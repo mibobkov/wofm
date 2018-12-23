@@ -10,8 +10,8 @@ class User:
     name = ""
     status= 'set_name'
     fighting = None
-    mindamage = 1
-    maxdamage = 2
+    mindamage = 2
+    maxdamage = 4
 
     def __init__(self, bot, chat_id):
         self.bot = bot
@@ -25,9 +25,15 @@ class User:
 
     def stats_text(self):
         return "Name: {}\n" \
-               "Health: {}/{}\n" \
+               u'U00002764'"Health: {}/{}\n" \
                "Mana: {}/{}\n" \
                "You are in {}\n".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.location)
+
+    def die(self):
+        self.status == 'ready'
+        self.location = 'village'
+        self.health = self.max_health
+        self.mana = self.max_mana
 
     def receive_damage(self, damage):
         self.health -= damage

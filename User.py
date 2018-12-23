@@ -25,10 +25,10 @@ class User:
         return random.randint(self.mindamage, self.maxdamage)
 
     def stats_text(self):
-        return "Name: {}\n" \
-               u'\U00002764'"Health: {}/{}\n" \
-               "Mana: {}/{}\n" \
-               "You are in {}\n".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.location.string)
+        return u'\U0001F466''{}\n' \
+               u'\U0001F534'"Health: {}/{}\n" \
+               u'\U0001F535'"Mana: {}/{}\n" \
+               "{}Location: {}\n".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.loation.emoji, self.location.string)
 
     def die(self):
         self.status == 'ready'

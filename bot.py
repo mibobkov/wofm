@@ -37,11 +37,11 @@ def choose_location(user, message):
 
 
 
-ratparams = ('Rat', 'This rat is agressive because it is ugly\n', 10, 1, 2)
+rat_params = ('Rat', 'This rat is agressive because it is ugly\n', 10, 1, 2)
 fightactions = [['Attack']]
 
 def fight_monsters(user, message):
-    monster = Monster(*ratparams)
+    monster = Monster(*rat_params)
     user.fighting = monster
     user.status = 'fighting'
     user.send_message('You are fighting a {}\n'
@@ -54,7 +54,7 @@ def attack(user, message):
         damage_received = user.fighting.get_damage()
         user.receive_damage(damage_received)
         user.fighting.receive_damage(damage_dealt)
-        text = 'You attacked and were attacked (3rd Law of Newton)\n' + \
+        text = 'You attacked and were attacked (3rd Law of Newton)!\n' + \
                           'You dealt {} damage and received {} damage\n'.format(damage_dealt, damage_received)
         if user.health == 0:
             user.die()

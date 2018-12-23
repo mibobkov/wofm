@@ -5,31 +5,29 @@ from enum import Enum
 
 
 class Location(Enum):
-    VILLAGE = 1
-    FOREST = 2
-    ARENA = 3
-
-    # def text(self):
-
-
-
-locationtexts = {}
-locationtexts['village'] = "You are in the village\n"
-locationtexts['forest'] = "You are in the forest\n"
-locationtexts['arena'] = "You are in the arena\n"
+    VILLAGE = 1, 'village', 'You are in the village\n', ['arena', 'forest']
+    FOREST = 2, 'forest', 'You are in the forest\n', ['village']
+    ARENA = 3, 'arena', 'You are in the arena\n', ['village']
+    def __new__(cls, key, name, text, paths):
+        obj = object.__new__(cls)
+        obj._value_ = key
+        obj.text = text
+        obj.name = name
+        obj.paths = paths
+    @staticmethod
+    def toEnum(string):
+        for loc in Location:
+            if loc.string == string:
+                return loc
 
 actionsin = {}
-actionsin['village'] = [['Stand in the middle of the village and do nothing'], ['Go somewhere']]
-actionsin['arena'] = [['Look around'], ['Go somewhere'] ]
-actionsin['forest'] = [['Bam bam, I am in the forest.'], ['Fight monsters'], ['Go somewhere']]
-
-paths = {}
-paths['village'] = ['arena', 'forest']
-paths['forest'] = ['village']
-paths['arena'] = ['village']
+actionsin[Location.VILLAGE] = [['Stand in the middle of the village and do nothing'], ['Go somewhere']]
+actionsin[Location.ARENA] = [['Look around'], ['Go somewhere'] ]
+actionsin[Location.FOREST] = [['Bam bam, I am in the forest.'], ['Fight monsters'], ['Go somewhere']]
 
 pathkeyboards = {}
-for path in paths:
-    pathkeyboards[path] = []
-    for place in paths[path]:
-        pathkeyboards[path].append([place])
+for location in Location:
+    path = location.paths
+    pathkeyboards[location] = []
+    for place in path:
+        pathkeyboards[location].append([place])

@@ -26,8 +26,8 @@ def set_user_name(user, message):
     user.send_message('You are ' + message + ' now', keyboard=actionsin[user.location])
 
 def go_to_location(user, message):
-    if message in paths[user.location]:
-        user.location = message
+    if message in user.location.paths:
+        user.location = Location.toEnum(message)
         user.status = 'ready'
         user.send_message(user.stats_text() + '\n\n\n', keyboard=actionsin[user.location])
 
@@ -45,7 +45,8 @@ def fight_monsters(user, message):
     user.fighting = monster
     user.status = 'fighting'
     user.send_message('You are fighting a {}\n'
-                      '{}/{} hp\n'.format(monster.name, monster.health, monster.maxhealth), keyboard=fightactions)
+                      '{}/{} hp\n'
+                      '{}'.format(monster.name, monster.health, monster.maxhealth, monster.text), keyboard=fightactions)
 
 def attack(user, message):
     if user.fighting != None:
@@ -81,7 +82,7 @@ def message(bot, update):
         go_to_location(user, message)
     elif message == 'Go somewhere':
         choose_location(user, message)
-    elif message == 'Fight monsters' and user.location == 'forest':
+    elif message == 'Fight monsters' and user.location == Location.FOREST:
         fight_monsters(user, message)
     elif message == 'Attack' and user.status == 'fighting':
         attack(user, message)

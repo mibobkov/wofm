@@ -1,8 +1,9 @@
 import telegram
 import random
+from locations import Location
 
 class User:
-    location = 'village'
+    location = Location.VILLAGE
     max_health = 100
     health = 100
     mana = 100
@@ -27,11 +28,11 @@ class User:
         return "Name: {}\n" \
                u'\U00002764'"Health: {}/{}\n" \
                "Mana: {}/{}\n" \
-               "You are in {}\n".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.location)
+               "You are in {}\n".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.location.string)
 
     def die(self):
         self.status == 'ready'
-        self.location = 'village'
+        self.location = Location.VILLAGE
         self.health = self.max_health
         self.mana = self.max_mana
 

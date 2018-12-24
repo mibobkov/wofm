@@ -34,9 +34,13 @@ class User:
             self.level_up()
 
     def should_level_up(self):
-        return self.exp > 10*(self.level-1)**1.2
+        return self.exp > self.next_level_req()
+
+    def next_level_req(self):
+        return 10*(self.level-1)**1.2
 
     def level_up(self):
+        self.level += 1
         self.levelled_up = True
         self.max_health += 10
         self.health = self.max_health
@@ -48,12 +52,14 @@ class User:
     def stats_text(self):
         levelled_up_text = ''
         if self.levelled_up:
-            levelled_up_text = '<b>You have levelled up! Congratulations</b>'
+            levelled_up_text = '<b>You have levelled up! Congratulations!</b>\n'
         self.levelled_up = False
-        return u'\U0001F466''<b>{}</b>\n' \
-               u'\U0001F534'"Health: {}/{}\n" \
-               u'\U0001F535'"Mana: {}/{}\n" \
-               "{}Location: {}".format(self.name, self.health, self.max_health, self.mana, self.max_mana, self.location.emoji, self.location.cstring) + \
+        return u'\U0001F466''<b>{}</b>\n'.format(self.name) + \
+               u'\U000026A1'"Level: {}\n".format(self.level) + \
+               u'\U0001F534'"Health: {}/{}\n".format(self.health, self.max_health) + \
+               u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + \
+               u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, self.next_level_req()) + \
+               "{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
                 levelled_up_text + '\n\n\n'
 
     def die(self):

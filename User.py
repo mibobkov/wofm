@@ -59,7 +59,7 @@ class User:
                u'\U0001F534'"Health: {}/{}\n".format(self.health, self.max_health) + \
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + \
                u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, self.next_level_req()) + \
-               "{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
+               u"{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
                 levelled_up_text + '\n\n\n'
 
     def die(self):

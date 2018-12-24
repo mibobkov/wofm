@@ -1,6 +1,7 @@
 import telegram
 import random
 from locations import Location
+import math
 
 class User:
     location = Location.VILLAGE
@@ -37,7 +38,7 @@ class User:
         return self.exp > self.next_level_req()
 
     def next_level_req(self):
-        return 9+int(10*(self.level-1)**1.2)
+        return math.ceil(10*(1.2**self.level-1)/(0.2))
 
     def level_up(self):
         self.level += 1

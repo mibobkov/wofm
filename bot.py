@@ -77,7 +77,7 @@ def show_leaderboard(user, message):
     userlist = []
     for u in users:
         userlist.append(users[u])
-    sortedList = sorted(userlist, lambda x: x.exp, reverse=True)
+    sortedList = sorted(userlist, key=lambda x: x.exp, reverse=True)
     text = 'Leaderboard: \n'
     count = 1
     for el in sortedList:

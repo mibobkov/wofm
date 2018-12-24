@@ -75,7 +75,7 @@ class User:
 
     def send_message(self, text, keyboard=None):
         if keyboard != None:
-            markup = telegram.ReplyKeyboardMarkup(keyboard)
+            markup = telegram.ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True,)
         else:
             markup = telegram.ReplyKeyboardRemove()
-        self.bot.send_message(chat_id=self.chat_id, text=text, reply_markup=markup, resize_keyboard=True, one_time_keyboard=True, parse_mode=telegram.ParseMode.HTML)
+        self.bot.send_message(chat_id=self.chat_id, text=text, reply_markup=markup, parse_mode=telegram.ParseMode.HTML)

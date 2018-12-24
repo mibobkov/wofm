@@ -13,7 +13,7 @@ users = {}
 updater = Updater(token=TOKEN)
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                     level=logging.INFO)
+                     level=logging.DEBUG)
 
 def register_user(bot, update):
     chat_id = update.message.chat_id
@@ -58,10 +58,10 @@ def attack(user, message):
             user.die()
             user.send_message('You died, but were revived in the village by the hobo community.\n')
         if user.fighting.health == 0:
-            user.fighting = None
             text += 'You killed the monster!'
             user.gold += user.fighting.get_gold()
             user.give_exp(user.fighting.get_exp())
+            user.fighting = None
             keyboard = actionsin[user.location]
         else:
             keyboard = fightactions

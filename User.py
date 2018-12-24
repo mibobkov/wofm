@@ -35,7 +35,7 @@ class User:
             self.level_up()
 
     def should_level_up(self):
-        return self.exp > self.next_level_req()
+        return self.exp >= self.next_level_req()
 
     def next_level_req(self):
         return math.ceil(10*(1.2**self.level-1)/(0.2))
@@ -59,9 +59,9 @@ class User:
                u'\U000026A1'"Level: {}\n".format(self.level) + \
                u'\U0001F534'"Health: {}/{}\n".format(self.health, self.max_health) + \
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + \
-               u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, self.next_level_req()) + \
+               u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, int(self.next_level_req())) + \
                u"{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
-                levelled_up_text + '\n\n\n'
+                levelled_up_text + '\n\n'
 
     def die(self):
         self.status == 'ready'
@@ -78,4 +78,4 @@ class User:
             markup = telegram.ReplyKeyboardMarkup(keyboard)
         else:
             markup = telegram.ReplyKeyboardRemove()
-        self.bot.send_message(chat_id=self.chat_id, text=text, reply_markup=markup, parse_mode=telegram.ParseMode.HTML)
+        self.bot.send_message(chat_id=self.chat_id, text=text, reply_markup=markup, resize_keyboard=True, one_time_keyboard=True, parse_mode=telegram.ParseMode.HTML)

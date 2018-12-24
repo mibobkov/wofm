@@ -82,9 +82,9 @@ def show_leaderboard(user, message):
     count = 1
     for el in sortedList:
         if el.chat_id == user.chat_id:
-            text += '{}. <b>{}</b>: {} lvl, {} exp\n'.format(count, el.name, el.level, el.exp)
+            text += u'{}. <b>{}</b>: {} lvl, {} exp\n'.format(count, el.name, el.level, el.exp)
         else:
-            text += '{}. {}: {} lvl, {} exp\n'.format(count, el.name, el.level, el.exp)
+            text += u'{}. {}: {} lvl, {} exp\n'.format(count, el.name, el.level, el.exp)
         count += 1
     user.send_message(text, keyboard=actionsin[user.location])
 

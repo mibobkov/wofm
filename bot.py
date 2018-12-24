@@ -60,6 +60,8 @@ def attack(user, message):
         if user.fighting.health == 0:
             user.fighting = None
             text += 'You killed the monster!'
+            user.gold += user.fighting.get_gold()
+            user.give_exp(user.fighting.get_exp())
             keyboard = actionsin[user.location]
         else:
             keyboard = fightactions

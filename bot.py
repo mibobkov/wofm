@@ -59,12 +59,12 @@ def attack(user, message):
             user.send_message('You died, but were revived in the village by the hobo community.\n')
         if user.fighting.health == 0:
             text += 'You killed the monster!'
-            text = user.stats_text() + text
             gold = user.fighting.get_gold()
             user.gold += gold
             exp = user.fighting.get_exp()
             user.give_exp(exp)
             text += 'You have gained <b>{}</b> exp and <b>{}</b> gold!'.format(exp, gold)
+            text = user.stats_text() + text
             user.fighting = None
             keyboard = actionsin[user.location]
         else:

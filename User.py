@@ -37,7 +37,7 @@ class User:
         return self.exp > self.next_level_req()
 
     def next_level_req(self):
-        return 10*(self.level-1)**1.2
+        return 9+int(10*(self.level-1)**1.2)
 
     def level_up(self):
         self.level += 1

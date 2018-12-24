@@ -35,7 +35,7 @@ def choose_location(user, message):
     user.status = 'going'
     user.send_message('Where do you want to go?', keyboard=pathkeyboards[user.location])
 
-rat_params = ('Rat', 'This rat is agressive because it is ugly\n', 10, 1, 2)
+rat_params = ('Rat', 'This rat is agressive because it is ugly\n', 10, 1, 2, 2, 2)
 fightactions = [['Attack']]
 
 def fight_monsters(user, message):

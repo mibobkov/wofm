@@ -73,6 +73,21 @@ def attack(user, message):
     else:
         user.send_message('You are not fighting anyone\n', keyboard=actionsin[user.location])
 
+def show_leaderboard(user, message):
+    userlist = []
+    for u in users:
+        userlist.append(users[u])
+    sortedList = sorted(userlist, lambda x: x.exp, reverse=True)
+    text = 'Leaderboard: \n'
+    count = 1
+    for el in sortedList:
+        if el.chat_id == user.chat_id:
+            text += '{}. <b>{}</b>: {} lvl, {} exp\n'.format(count, el.name, el.level, el.exp)
+        else:
+            text += '{}. {}: {} lvl, {} exp\n'.format(count, el.name, el.level, el.exp)
+        count += 1
+    user.send_message(text, keyboard=actionsin[user.location])
+
 def message(bot, update):
     if update.message.chat_id not in users:
         register_user(bot, update)
@@ -90,6 +105,8 @@ def message(bot, update):
         fight_monsters(user, message)
     elif message == 'Attack' and user.status == 'fighting':
         attack(user, message)
+    elif message == 'Leaderboard':
+        show_leaderboard(user, message)
     else:
         user.send_message(user.stats_text(), keyboard=actionsin[user.location])
 

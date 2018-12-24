@@ -32,10 +32,10 @@ class Location(Enum):
         return self.string.capitalize()
 
 actionsin = {}
-actionsin[Location.VILLAGE] = [['Stand in the middle of the village and do nothing'], ['Go somewhere']]
-actionsin[Location.ARENA] = [['Look around'], ['Go somewhere'] ]
-actionsin[Location.FOREST] = [['Bam bam, I am in the forest.'], ['Fight monsters'], ['Go somewhere']]
-actionsin[Location.LAKE] = [['Look at the big fucking lake in total awe.'], ['Go somewhere']]
+actionsin[Location.VILLAGE] = [['Stand in the middle of the village and do nothing'], ['Go somewhere'], ['Leaderboard']]
+actionsin[Location.ARENA] = [['Look around'], ['Go somewhere'] , ['Leaderboard']]
+actionsin[Location.FOREST] = [['Bam bam, I am in the forest.'], ['Fight monsters'], ['Go somewhere'], ['Leaderboard']]
+actionsin[Location.LAKE] = [['Look at the big fucking lake in total awe.'], ['Go somewhere'], ['Leaderboard']]
 
 pathkeyboards = {}
 for location in Location:

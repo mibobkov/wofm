@@ -1,6 +1,23 @@
 import random
-class Monster:
-    def __init__(self, name, text, health, mindamage, maxdamage, gold, exp):
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from base import Base
+
+class Monster(Base):
+    __tablename__ = 'monsters'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.chat_id'))
+    gold = Column(Integer)
+    exp = Column(Integer)
+    health = Column(Integer)
+    maxhealth = Column(Integer)
+    mindamage = Column(Integer)
+    maxdamage = Column(Integer)
+    text = Column(String(100))
+    name = Column(String(50))
+
+    def __init__(self, user_id, name, text, health, mindamage, maxdamage, gold, exp):
+        self.user_id = user_id
         self.gold = gold
         self.exp = exp
         self.maxhealth = health

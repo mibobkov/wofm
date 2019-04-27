@@ -3,15 +3,13 @@ import random
 from locations import Location
 import math
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean
-
-Base = declarative_base()
+from sqlalchemy import Column, Integer, String, Boolean, Enum
+from base import Base
 
 class User(Base):
     __tablename__ = 'users'
     chat_id = Column(Integer, primary_key=True)
-    location = Column(String(50))
+    location = Column(Enum(Location))
     max_health = Column(Integer)
     health = Column(Integer)
     mana = Column(Integer)

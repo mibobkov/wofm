@@ -10,17 +10,15 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from base import Base
 
 
 engine = create_engine("mysql+mysqlconnector://{}:{}@{}/{}".format(db_user, db_passwd, db_host, db_name))
 engine.connect()
-Base = declarative_base()
 Base.metadata.create_all(engine)
-Session = sessionmaker.bind(engine)
+Session = sessionmaker(bind=engine)
 session = Session()
 
-
-users = {}
 
 updater = Updater(token=TOKEN)
 dispatcher = updater.dispatcher
@@ -53,44 +51,51 @@ rat_params = ('Rat', 'This rat is agressive because it is ugly\n', 10, 1, 2, 2, 
 fightactions = [['Attack']]
 
 def fight_monsters(user, message):
-    monster = Monster(*rat_params)
-    user.fighting = monster
+    monster = Monster(user.chat_id, *rat_params)
     user.status = 'fighting'
+    session.add(monster)
+    session.commit()
     user.send_message('You are fighting a {}\n'
                       '{}/{} hp\n'
                       '{}'.format(monster.name, monster.health, monster.maxhealth, monster.text), keyboard=fightactions)
 
 def attack(user, message):
-    if user.fighting != None:
-        damage_dealt = user.get_damage()
-        damage_received = user.fighting.get_damage()
-        user.receive_damage(damage_received)
-        user.fighting.receive_damage(damage_dealt)
-        text = 'You attacked and were attacked (3rd Law of Newton)!\n' + \
-                          'You dealt {} damage and received {} damage\n'.format(damage_dealt, damage_received)
-        if user.health == 0:
-            user.die()
-            user.send_message('You died, but were revived in the village by the hobo community.\n')
-        if user.fighting.health == 0:
-            text += 'You killed the monster!'
-            gold = user.fighting.get_gold()
-            user.gold += gold
-            exp = user.fighting.get_exp()
-            user.give_exp(exp)
-            text += 'You have gained <b>{}</b> exp and <b>{}</b> gold!'.format(exp, gold)
-            text = user.stats_text() + text
-            user.fighting = None
-            keyboard = actionsin[user.location]
-        else:
-            keyboard = fightactions
-        user.send_message(text, keyboard=keyboard)
+    monster = session.query(Monster).filter_by(user_id=user.chat_id).first()
+    if not monster:
+        user.status = 'ready'
+        return
+    damage_dealt = user.get_damage()
+    damage_received = monster.get_damage()
+    user.receive_damage(damage_received)
+    monster.receive_damage(damage_dealt)
+    text = 'You attacked and were attacked (3rd Law of Newton)!\n' + \
+                      'You dealt {} damage and received {} damage\n'.format(damage_dealt, damage_received)
+    if user.health == 0:
+        user.die()
+        session.delete(monster)
+        session.commit()
+        user.send_message('You died, but were revived in the village by the hobo community.\n')
+    if monster.health == 0:
+        text += 'You killed the monster!'
+        gold = monster.get_gold()
+        user.gold += gold
+        exp = monster.get_exp()
+        user.give_exp(exp)
+        text += 'You have gained <b>{}</b> exp and <b>{}</b> gold!'.format(exp, gold)
+        text = user.stats_text() + text
+        user.status = 'ready'
+        session.delete(monster)
+        keyboard = actionsin[user.location]
     else:
-        user.send_message('You are not fighting anyone\n', keyboard=actionsin[user.location])
+        keyboard = fightactions
+    user.send_message(text, keyboard=keyboard)
+    #else:
+    #    user.send_message('You are not fighting anyone\n', keyboard=actionsin[user.location])
 
 def show_leaderboard(user, message):
     userlist = []
-    for u in users:
-        userlist.append(users[u])
+    for u in session.query(User):
+        userlist.append(u)
     sortedList = sorted(userlist, key=lambda x: x.exp, reverse=True)
     text = 'Leaderboard: \n'
     count = 1
@@ -111,18 +116,15 @@ def message(bot, update):
     else:
         user.set_bot(bot)
 
-
-        return
-    user = users[update.message.chat_id]
     message = update.message.text
 
     if user.status == 'set_name':
         set_user_name(user, message)
     elif user.status == 'going':
         go_to_location(user, message)
-    elif message == 'Go somewhere':
+    elif user.status == 'ready' and message == 'Go somewhere':
         choose_location(user, message)
-    elif message == 'Fight monsters' and user.location == Location.FOREST:
+    elif user.status == 'ready' and message == 'Fight monsters' and user.location == Location.FOREST:
         fight_monsters(user, message)
     elif message == 'Attack' and user.status == 'fighting':
         attack(user, message)

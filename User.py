@@ -2,26 +2,49 @@ import telegram
 import random
 from locations import Location
 import math
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean
 
-class User:
-    location = Location.VILLAGE
-    max_health = 100
-    health = 100
-    mana = 100
-    max_mana = 100
-    name = ""
-    status= 'set_name'
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'users'
+    chat_id = Column(Integer, primary_key=True)
+    location = Column(String(50))
+    max_health = Column(Integer)
+    health = Column(Integer)
+    mana = Column(Integer)
+    max_mana = Column(Integer)
+    name = Column(String(50))
+    status= Column(String(50))
     fighting = None
-    mindamage = 2
-    maxdamage = 4
-    exp = 0
-    gold = 0
-    level = 1
-    levelled_up = False
+    mindamage = Column(Integer)
+    maxdamage = Column(Integer)
+    exp = Column(Integer)
+    gold = Column(Integer)
+    level = Column(Integer)
+    levelled_up = Column(Boolean)
 
-    def __init__(self, bot, chat_id):
-        self.bot = bot
+    def __init__(self, chat_id):
         self.chat_id = chat_id
+        self.location = Location.VILLAGE
+        self.max_health = 100
+        self.health = 100
+        self.mana = 100
+        self.max_mana = 100
+        self.name = ""
+        self.status = "set_name"
+        self.fighting = None
+        self.mindamage = 2
+        self.maxdamage = 4
+        self.exp = 0
+        self.gold = 0
+        self.level = 1
+        self.levelled_up = False
+
+    def set_bot(self, bot):
+        self.bot = bot
 
     def set_name(self, name):
         self.name = name

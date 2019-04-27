@@ -2,11 +2,23 @@ from telegram.ext import Updater
 from telegram.ext import MessageHandler, Filters
 from telegram.ext import CommandHandler
 import logging
-from configuration import TOKEN
+from configuration import TOKEN, db_name, db_user, db_passwd, db_host
 from locations import *
 from User import User
 from Monster import Monster
-import random
+from sqlalchemy import create_engine
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+
+engine = create_engine("mysql+mysqlconnector://{}:{}@{}/{}".format(db_user, db_passwd, db_host, db_name))
+engine.connect()
+Base = declarative_base()
+Base.metadata.create_all(engine)
+Session = sessionmaker.bind(engine)
+session = Session()
+
 
 users = {}
 
@@ -17,7 +29,9 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 def register_user(bot, update):
     chat_id = update.message.chat_id
-    users[chat_id] = User(bot, chat_id)
+    user = User(chat_id)
+    user.set_bot(bot)
+    session.add(user)
     bot.send_message(chat_id=chat_id, text="Enter your name")
 
 def set_user_name(user, message):
@@ -89,8 +103,15 @@ def show_leaderboard(user, message):
     user.send_message(text, keyboard=actionsin[user.location])
 
 def message(bot, update):
-    if update.message.chat_id not in users:
+    user = session.query(User).filter_by(chat_id=update.message.chat_id).first()
+    if not user:
         register_user(bot, update)
+        session.commit()
+        return
+    else:
+        user.set_bot(bot)
+
+
         return
     user = users[update.message.chat_id]
     message = update.message.text
@@ -109,11 +130,14 @@ def message(bot, update):
         show_leaderboard(user, message)
     else:
         user.send_message(user.stats_text(), keyboard=actionsin[user.location])
+    session.commit()
 
 def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Welcome to World of Magic!")
-    if update.message.chat_id not in users:
+    user = session.query(User).filter_by(chat_id=update.message.chat_id).first()
+    if not user:
         register_user(bot, update)
+        session.commit()
         return
 
 

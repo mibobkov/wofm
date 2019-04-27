@@ -34,8 +34,9 @@ class Monster(Base):
         return random.randint(self.exp*0.5, self.exp*1.5)
 
     def receive_damage(self, damage):
-        self.health -= damage
-        self.health = max(0, self.health)
+        self.health = max(0, self.health-damage)
 
     def get_damage(self):
         return random.randint(self.mindamage, self.maxdamage)
+
+rat_params = ('Rat', 'This rat is agressive because it is ugly\n', 10, 1, 2, 2, 2)

@@ -50,6 +50,9 @@ class User(Base):
     def get_damage(self):
         return random.randint(self.mindamage, self.maxdamage)
 
+    def give_gold(self, amount):
+        self.gold += amount
+
     def give_exp(self, amount):
         self.exp += amount
         if self.should_level_up():
@@ -91,8 +94,7 @@ class User(Base):
         self.mana = self.max_mana
 
     def receive_damage(self, damage):
-        self.health -= damage
-        self.health = max(0, self.health)
+        self.health = max(0, self.health-damage)
 
     def send_message(self, text, keyboard=None):
         if keyboard != None:

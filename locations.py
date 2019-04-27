@@ -1,8 +1,4 @@
-# Village - spawn point
-# Forest - kill random things
-# Arena - pvp
 from enum import Enum
-
 
 class Location(Enum):
     VILLAGE = 'village', 'You are in the village. Villagers bitch about weather and are ugly as fuck. Inbreeding?\n', ['arena', 'forest'], u'\U0001F3E0'
@@ -14,9 +10,16 @@ class Location(Enum):
         self.text = text
         self.string = string
         self.paths = paths
+
     @staticmethod
     def toEnum(string):
-        string = string.encode('ascii', 'ignore').lower()
+        def delEmoji(s):
+            if ord(s[0]) > 255:
+                return s[1:]
+            else:
+                return s
+
+        string = delEmoji(string).lower()
         for loc in Location:
             if loc.string == string:
                 return loc
@@ -43,3 +46,5 @@ for location in Location:
     pathkeyboards[location] = []
     for place in path:
         pathkeyboards[location].append([place])
+
+fightactions = [['Attack']]

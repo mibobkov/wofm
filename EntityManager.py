@@ -8,6 +8,9 @@ class EntityManager:
     def getEntityByField(self, entClass, field, value):
         return self.session.query(entClass).filter_by(**{field: value}).first()
 
+    def getAllByField(self, entClass, field, value):
+        return self.session.query(entClass).filter_by(**{field: value})
+
     def delete(self, entity):
         self.session.delete(entity)
 

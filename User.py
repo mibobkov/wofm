@@ -17,6 +17,7 @@ class User(Base):
     name = Column(String(50))
     status= Column(String(50))
     fighting = None
+    opponent = Column(Integer)
     mindamage = Column(Integer)
     maxdamage = Column(Integer)
     exp = Column(Integer)
@@ -86,6 +87,11 @@ class User(Base):
                u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, int(self.next_level_req())) + \
                u"{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
                 levelled_up_text + '\n\n'
+    def battle_text(self):
+        return u'\U0001F466''<b>{}</b>\n'.format(self.name) + \
+               u'\U000026A1'"Level: {}\n".format(self.level) + \
+               u'\U0001F534'"Health: {}/{}\n".format(self.health, self.max_health) + \
+               u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + '\n\n'
 
     def die(self):
         self.status == 'ready'

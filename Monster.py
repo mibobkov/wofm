@@ -28,10 +28,10 @@ class Monster(Base):
         self.health = self.maxhealth
 
     def get_gold(self):
-        return random.randint(self.gold*0.5, self.gold*1.5)
+        return random.randint(int(self.gold*0.5), int(self.gold*1.5))
 
     def get_exp(self):
-        return random.randint(self.exp*0.5, self.exp*1.5)
+        return random.randint(int(self.exp*0.5), int(self.exp*1.5))
 
     def receive_damage(self, damage):
         self.health = max(0, self.health-damage)
@@ -39,4 +39,8 @@ class Monster(Base):
     def get_damage(self):
         return random.randint(self.mindamage, self.maxdamage)
 
-rat_params = ('Rat', 'This rat is agressive because it is ugly\n', 10, 1, 2, 2, 2)
+rat_params = ('Rat', 'You see a rat. This rat is agressive because it is ugly\n', 10, 1, 2, 2, 2)
+goblin_params = ('Goblin', 'You see Goblin. Goblin. Goblin, Gobliiiiiin. Nasty creature with eyes of emerald green. \n', 30, 4, 8, 8, 10)
+spider_params = ('Spider', 'You see a spider. Its called Spider-spider, because it is half spider, half spider. \n', 15, 1, 4, 2, 4)
+wolf_params = ('Wolf', 'You see a wolf. A wolf says: Awooo!. You say nothing.\n', 20, 7, 7, 4, 8)
+devil_params = ('Devil', 'You see the devil. You probably do not want to mess with him.\n', 20000, 7000, 15000, 4000, 8000)

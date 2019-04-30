@@ -92,13 +92,26 @@ class User(Base):
                u'\U00002764'"Health: {}/{}\n".format(self.health, self.max_health) + \
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + \
                u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, int(self.next_level_req())) + \
+               u'\U0001F4B0'"Gold: {}\n".format(self.gold) + \
                u"{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
-                levelled_up_text + '\n\n'
+                levelled_up_text + '\n' + \
+                self.location_text()
     def battle_text(self):
         return u'\U0001F466''<b>{}</b>\n'.format(self.name) + \
                u'\U000026A1'"Level: {}\n".format(self.level) + \
                u'\U00002764'"Health: {}/{}\n".format(self.health, self.max_health) + \
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + '\n\n'
+
+    def location_text(self):
+        from locations import pathkeyboards
+        text = ''
+        for loc in pathkeyboards[self.location]:
+            location = Location.toEnum(loc[0])
+            location_id = location.id
+            text += location.emoji+location.cstring + ' /go_' + str(location_id) + '\n'
+        if text != '':
+            text += '\n'
+        return text
 
     def die(self):
         self.status == UserStatus.READY

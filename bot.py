@@ -1,6 +1,6 @@
 from telegram.ext import Updater
 from telegram.ext import MessageHandler, Filters
-from telegram.ext import CommandHandler
+from telegram.ext.commandhandler import CommandHandler
 import logging
 from configuration import TOKEN, db_param
 from sqlalchemy import create_engine
@@ -37,12 +37,20 @@ def message(bot, update):
 def broadcast(bot, update):
     mp.broadcast(update.message.chat_id, update.message.text)
 
+def go(bot, update):
+    mp.go(update.message.chat_id, update.message.text)
+
 start_handler = CommandHandler('start', start)
 message_handler = MessageHandler([Filters.text], message)
 broadcast_handler = CommandHandler('broadcast', broadcast)
 
+
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(message_handler)
 dispatcher.add_handler(broadcast_handler)
+
+for i in range(0, 100):
+    h = CommandHandler('go_' + str(i), go)
+    dispatcher.add_handler(h)
 
 updater.start_polling()

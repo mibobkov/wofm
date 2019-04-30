@@ -4,6 +4,7 @@ from monster import Monster
 from monster import rat_params
 from copy import copy, deepcopy
 from resource_entry import ResourceEntry, Resource
+from quotes import Quotes
 
 class MessageProcessor:
     def __init__(self, entityManager, messageSender):
@@ -60,9 +61,14 @@ class MessageProcessor:
             actions = self.generateLocationActions(user)
             self.ms.send_message(user.chat_id, user.stats_text() + user.location.text +'\n' + ('' if not spawned_monster else spawned_monster.text), keyboard=actions)
 
-    def choose_location(self, user, message):
-        user.status = UserStatus.GOING
-        self.ms.send_message(user.chat_id, 'Where do you want to go?\n', keyboard=pathkeyboards[user.location])
+    # def choose_location(self, user, message):
+    #     user.status = UserStatus.GOING
+    #     text = ''
+    #     for loc in pathkeyboards[user.location]:
+    #         location = Location.toEnum(loc[0])
+    #         location_id = location.id
+    #         text += location.emoji+location.cstring + ' /go_' + str(location_id) + '\n'
+    #     self.ms.send_message(user.chat_id, 'Where do you want to go?\n' + text, keyboard=pathkeyboards[user.location])
 
 
     def fight_monster(self, user, message):
@@ -112,7 +118,7 @@ class MessageProcessor:
                 loot_text = '\nLoot:\n\n' + loot_text + '----------'
             text = user.stats_text() + \
                    text + \
-                   'You killed the monster and gained <b>{} exp</b> and <b>{} gold</b>!\n'.format(exp, gold) + \
+                   ('You killed the monster and gained'+ u'\U0001F4A1''<b>{} exp</b> and ' + u'\U0001F4B0''<b>{} gold</b>!\n').format(exp, gold) + \
                    loot_text
             user.status = UserStatus.READY
             self.entityManager.delete(monster)
@@ -234,6 +240,23 @@ class MessageProcessor:
         text += '------------'
         self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
 
+    def speak_to_great_dogo(self, user, message):
+        if user.location != Location.HOUSE_OF_THE_GREAT_DOGO:
+            return
+        quotes = Quotes()
+        quote = quotes.random()
+        text = '<b>The Great Dogo says:</b>\n\nMy old friend, {}, once said:\n<i>{}</i>.\nI suggest you follow this advice!\n'.format(quote[0], quote[1])
+        self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
+
+    def drink_from_the_fountain(self, user, message):
+        if user.location != Location.FOUNTAIN:
+            return
+        user.health = user.max_health
+        user.mana = user.max_mana
+        text = 'Drink! Drink! Drink! Piracy\'s a crime, but drinking from the fountain of youth is not. You restored you health and mana.\n'
+        self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
+
+
     #######################
     ## Command handlers: ##
     #######################
@@ -246,23 +269,25 @@ class MessageProcessor:
             self.entityManager.commit()
             return
 
-        if   user.status == UserStatus.SET_NAME:      self.set_user_name(user, message)
-        elif user.status == UserStatus.STARTING_DUEL: self.send_duel(user, message)
-        elif user.status == UserStatus.GOING:         self.go_to_location(user, message)
-        elif user.status == UserStatus.FIGHTING:      self.attack(user, message)
-        elif user.status == UserStatus.DUELLING:      self.duel(user, message)
+        if   user.status == UserStatus.SET_NAME:       self.set_user_name(user, message)
+        elif user.status == UserStatus.STARTING_DUEL:  self.send_duel(user, message)
+        elif user.status == UserStatus.FIGHTING:       self.attack(user, message)
+        elif user.status == UserStatus.DUELLING:       self.duel(user, message)
         elif user.status == UserStatus.READY:
-            if   message == 'Duel':                   self.choose_duel(user, message)
-            elif message == 'Go somewhere':           self.choose_location(user, message)
-            elif message == 'Fight monster':          self.fight_monster(user, message)
+            if   message == 'Duel':                    self.choose_duel(user, message)
+            elif message == 'Fight monster':           self.fight_monster(user, message)
             elif len(message.split(' ')) == 2 \
-                 and message.split(' ')[0] == 'Duel': self.accept_duel(user, message)
-            elif message == 'Leaderboard':            self.show_leaderboard(user, message)
-            elif message == 'Inventory':              self.show_inventory(user, message)
+                 and message.split(' ')[0] == 'Duel':  self.accept_duel(user, message)
+            elif message == 'Leaderboard':             self.show_leaderboard(user, message)
+            elif message == 'Inventory':               self.show_inventory(user, message)
+            elif message == 'Speak to the Great Dogo': self.speak_to_great_dogo(user, message)
+            elif message == 'Drink from the fountain': self.drink_from_the_fountain(user, message)
         else:
             self.ms.send_message(user.chat_id, user.stats_text(), keyboard=self.generateLocationActions(user))
         self.entityManager.commit()
 
+        # elif user.status == UserStatus.GOING:          self.go_to_location(user, message)
+        # elif message == 'Go somewhere':            self.choose_location(user, message)
     def broadcast(self, chat_id, message):
         user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
         if not user:
@@ -274,6 +299,24 @@ class MessageProcessor:
         for u in users:
             self.ms.send_message(u.chat_id, text='Broadcast from ' + user.name + ': ' + message, keyboard=self.generateLocationActions(user))
 
+    def go(self, chat_id, message):
+        user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
+        if not user:
+            self.register_user(chat_id)
+
+        if user.status != UserStatus.READY:
+            return
+        location_id = message.split(' ')[0].split('_')[1]
+        location = Location.idToEnum(int(location_id))
+        if location in [Location.toEnum(x) for x in user.location.paths]:
+            self.delete_monster(user.chat_id)
+            user.location = location
+            user.status = UserStatus.READY
+            spawned_monster = self.spawn_monsters(user.chat_id, user.location)
+            actions = self.generateLocationActions(user)
+            self.ms.send_message(user.chat_id, user.stats_text() + user.location.text +'\n' + ('' if not spawned_monster else spawned_monster.text), keyboard=actions)
+        else:
+            print('some error')
 
     def start(self, chat_id, message):
         self.ms.send_message(chat_id=chat_id, text="Welcome to the World of Magic!")

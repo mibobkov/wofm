@@ -1,5 +1,5 @@
 from locations import *
-from User import User
+from User import User, UserStatus
 from Monster import Monster
 from Monster import rat_params
 from copy import copy, deepcopy
@@ -16,7 +16,7 @@ class MessageProcessor:
 
     def set_user_name(self, user, message):
         user.set_name(message)
-        user.status = 'ready'
+        user.status = UserStatus.READY
         self.ms.send_message(user.chat_id, user.stats_text() + 'You are {} now\n'.format(message), keyboard=actionsin[user.location])
 
     def spawn_monsters(self, chat_id, location):
@@ -40,13 +40,13 @@ class MessageProcessor:
     def generateLocationActions(self, user):
         monster = self.entityManager.getEntityByField(Monster, 'user_id', user.chat_id)
         actions = deepcopy(actionsin[user.location])
-        if user.status == 'fighting' or user.status == 'duelling':
+        if user.status == UserStatus.FIGHTING or user.status == UserStatus.DUELLING:
             return fightactions
-        if user.status == 'duelling_attacked':
+        if user.status == UserStatus.DUELLING_ATTACKED:
             return [[]]
         if monster != None:
             actions = [['Fight monster']] + actions
-        if user.location == Location.ARENA and user.status == 'ready':
+        if user.location == Location.ARENA and user.status == UserStatus.READY:
             actions += [['Duel']]
         return actions
 
@@ -54,28 +54,32 @@ class MessageProcessor:
         if message in user.location.prettypaths:
             self.delete_monster(user.chat_id)
             user.location = Location.toEnum(message)
-            user.status = 'ready'
+            user.status = UserStatus.READY
             spawned_monster = self.spawn_monsters(user.chat_id, user.location)
             actions = self.generateLocationActions(user)
             self.ms.send_message(user.chat_id, user.stats_text() + user.location.text +'\n' + ('' if not spawned_monster else spawned_monster.text), keyboard=actions)
 
     def choose_location(self, user, message):
-        user.status = 'going'
+        user.status = UserStatus.GOING
         self.ms.send_message(user.chat_id, 'Where do you want to go?\n', keyboard=pathkeyboards[user.location])
 
 
     def fight_monster(self, user, message):
         monster = self.entityManager.getEntityByField(Monster, 'user_id', user.chat_id)
         if not monster:
+            self.ms.send_message(user.chat_id, 'There is no one to fight\n', keyboard=self.generateLocationActions(user))
             return
-        user.status = 'fighting'
+        user.status = UserStatus.FIGHTING
         self.ms.send_message(user.chat_id, 'You are fighting a {}\n'
                           '{}/{} hp\n'.format(monster.name, monster.health, monster.maxhealth), keyboard=fightactions)
 
     def attack(self, user, message):
+        if message != 'Attack':
+            self.ms.send_message(user.chat_id, "Invalid action", fightactions)
+            return
         monster = self.entityManager.getEntityByField(Monster, 'user_id', user.chat_id)
         if not monster:
-            user.status = 'ready'
+            user.status = UserStatus.READY
             return
         damage_dealt = user.get_damage()
         damage_received = monster.get_damage()
@@ -97,7 +101,7 @@ class MessageProcessor:
             text = user.stats_text() + \
                    text + \
                    'You killed the monster and gained <b>{}</b> exp and <b>{}</b> gold!'.format(exp, gold)
-            user.status = 'ready'
+            user.status = UserStatus.READY
             self.entityManager.delete(monster)
             keyboard = self.generateLocationActions(user)
         else:
@@ -122,6 +126,9 @@ class MessageProcessor:
         self.ms.send_message(user.chat_id, text, keyboard=self.generateLocationActions(user))
 
     def choose_duel(self, user, message):
+        if user.location != Location.ARENA:
+            self.ms.send_message(user.chat_id, 'You must be in the arena to duel\n', keyboard=self.generateLocationActions(user))
+            return
         users = self.entityManager.getAllByField(User, 'location', user.location)
         text = ''
         for u in users:
@@ -130,53 +137,53 @@ class MessageProcessor:
         if text == '':
             self.ms.send_message(user.chat_id, 'No one in the arena\n')
         else:
-            user.status = 'starting_duel'
+            user.status = UserStatus.STARTING_DUEL
             self.ms.send_message(user.chat_id, 'Send the id of who you want to fight: \n' + text)
 
     def send_duel(self, user, message):
         target_user = self.entityManager.getEntityByField(User, 'chat_id', message)
         if not target_user:
-            user.status = 'ready'
+            user.status = UserStatus.READY
             self.ms.send_message(user.chat_id, 'Sorry, no such player\n')
         elif target_user.location != Location.ARENA:
             self.ms.send_message(user.chat_id, 'Sorry, this player has left the arena\n')
-        elif target_user.status != 'ready':
+        elif target_user.status != UserStatus.READY:
             self.ms.send_message(user.chat_id, "Sorry, this player seems to be busy\n")
         else:
             self.ms.send_message(user.chat_id, "Sent the invitation to the user.\n")
-            target_user.set_bot(user.bot)
             self.ms.send_message(target_user.chat_id, "You have received a duel invite from {}.".format(user.name), keyboard=self.generateLocationActions(target_user) + [["Duel {}".format(user.chat_id)]])
 
     def accept_duel(self, user, message):
         target_id = int(message.split(' ')[1])
         target_user = self.entityManager.getEntityByField(User, 'chat_id', target_id)
         if not target_user:
-            user.status = 'ready'
+            user.status = UserStatus.READY
             self.ms.send_message(user.chat_id, 'Sorry, no such player\n', self.generateLocationActions(user))
         elif target_user.location != Location.ARENA:
-            user.status = 'ready'
+            user.status = UserStatus.READY
             self.ms.send_message(user.chat_id, 'Sorry, this player has left the arena\n', self.generateLocationActions(user))
-        elif target_user.status != 'starting_duel':
-            user.status = 'ready'
+        elif target_user.status != UserStatus.STARTING_DUEL:
+            user.status = UserStatus.READY
             self.ms.send_message(user.chat_id, 'Sorry this player seems to no longer want a duel\n', self.generateLocationActions(user))
         else:
-            user.status = 'duelling'
+            user.status = UserStatus.DUELLING
             user.opponent = target_user.chat_id
             target_user.opponent = user.chat_id
-            target_user.status = 'duelling'
-            target_user.set_bot(user.bot)
+            target_user.status = UserStatus.DUELLING
             self.ms.send_message(user.chat_id, user.stats_text() + target_user.stats_text(), keyboard=fightactions)
             self.ms.send_message(target_user.chat_id, target_user.stats_text() + user.stats_text(), keyboard=fightactions)
 
     def duel(self, user, message):
+        if message != 'Attack':
+            self.ms.send_message(user.chat_id, 'Invalid action', fightactions)
+            return
         opponent = self.entityManager.getEntityByField(User, 'chat_id', user.opponent)
-        opponent.set_bot(user.bot)
-        if opponent.status == 'duelling':
-            user.status = 'duelling_attacked'
+        if opponent.status == UserStatus.DUELLING:
+            user.status = UserStatus.DUELLING_ATTACKED
             self.ms.send_message(user.chat_id, 'Attacked, waiting for opponent', keyboard=[[]])
         else:
-            user.status = 'duelling'
-            opponent.status = 'duelling'
+            user.status = UserStatus.DUELLING
+            opponent.status = UserStatus.DUELLING
             user_damage = user.get_damage()
             opponent_damage = opponent.get_damage()
             user.receive_damage(opponent_damage)
@@ -184,75 +191,65 @@ class MessageProcessor:
             user_text = 'You dealt {} damage and received {} damage\n'.format(user_damage, opponent_damage)
             opponent_text = 'You dealt {} damage and received {} damage\n'.format(opponent_damage, user_damage)
 
-            finished = False
             if user.health == 0 and opponent.health == 0:
                 user_text += '<b>Its a draw</b>\n'
                 opponent_text += '<b>Its a draw</b>\n'
-                finished = True
             elif user.health == 0:
                 user_text += '<b>You lost</b>!\n'
                 opponent_text += '<b>You won</b>!\n'
-                finished = True
             elif opponent.health == 0:
                 user_text += '<b>You won!</b>\n'
                 opponent_text += '<b>You lost!</b>\n'
-                finished = True
+            finished = user.health == 0 or opponent.health == 0
             if finished:
-                user.status = 'ready'
-                opponent.status = 'ready'
+                user.status = UserStatus.READY
+                opponent.status = UserStatus.READY
                 user.opponent = None
                 opponent.opponent = None
 
             self.ms.send_message(user.chat_id, user.battle_text() + opponent.battle_text() + user_text, keyboard=fightactions if not finished else self.generateLocationActions(user))
             self.ms.send_message(opponent.chat_id, opponent.battle_text() + user.battle_text() + opponent_text, keyboard=fightactions if not finished else self.generateLocationActions(opponent))
 
-
+    #######################
+    ## Command handlers: ##
+    #######################
 
     def message(self, chat_id, message):
         user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
         if not user:
             self.register_user(chat_id)
+            self.entityManager.commit()
             return
 
-        if user.status == 'set_name':
-            self.set_user_name(user, message)
-        elif user.status == 'ready' and message == 'Duel' and user.location == Location.ARENA:
-            self.choose_duel(user, message)
-        elif user.status == 'ready' and len(message.split(' ')) == 2 and message.split(' ')[0] == 'Duel':
-            self.accept_duel(user, message)
-        elif user.status == 'starting_duel':
-            self.send_duel(user, message)
-        elif user.status == 'going':
-            self.go_to_location(user, message)
-        elif user.status == 'ready' and message == 'Go somewhere':
-            self.choose_location(user, message)
-        elif user.status == 'ready' and message == 'Fight monster' and self.entityManager.getEntityByField(Monster, 'user_id', user.chat_id):
-            self.fight_monster(user, message)
-        elif message == 'Attack' and user.status == 'fighting':
-            self.attack(user, message)
-        elif message == 'Attack' and user.status == 'duelling':
-            self.duel(user, message)
-        elif message == 'Leaderboard':
-            self.show_leaderboard(user, message)
+        if   user.status == UserStatus.SET_NAME:      self.set_user_name(user, message)
+        elif user.status == UserStatus.STARTING_DUEL: self.send_duel(user, message)
+        elif user.status == UserStatus.GOING:         self.go_to_location(user, message)
+        elif user.status == UserStatus.FIGHTING:      self.attack(user, message)
+        elif user.status == UserStatus.DUELLING:      self.duel(user, message)
+        elif user.status == UserStatus.READY:
+            if   message == 'Duel':                   self.choose_duel(user, message)
+            elif message == 'Go somewhere':           self.choose_location(user, message)
+            elif message == 'Fight monster':          self.fight_monster(user, message)
+            elif len(message.split(' ')) == 2 \
+                 and message.split(' ')[0] == 'Duel': self.accept_duel(user, message)
+            elif message == 'Leaderboard':            self.show_leaderboard(user, message)
         else:
             self.ms.send_message(user.chat_id, user.stats_text(), keyboard=self.generateLocationActions(user))
         self.entityManager.commit()
 
     def broadcast(self, chat_id, message):
-        chat_id = chat_id
         user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
         if not user:
             self.register_user(chat_id)
             self.entityManager.commit()
-        else:
-            users = self.entityManager.getAll(User)
-            for u in users:
-                u.set_bot(user.bot)
-                self.ms.send_message(u.chat_id, text='Broadcast from ' + user.name + ': ' + message, keyboard=self.generateLocationActions(user))
+            return
+
+        users = self.entityManager.getAll(User)
+        for u in users:
+            self.ms.send_message(u.chat_id, text='Broadcast from ' + user.name + ': ' + message, keyboard=self.generateLocationActions(user))
 
 
     def start(self, chat_id, message):
-        chat_id = chat_id
         self.ms.send_message(chat_id=chat_id, text="Welcome to the World of Magic!")
         user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
         if not user:

@@ -3,19 +3,29 @@ import random
 from locations import Location
 import math
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Boolean, Enum
+from sqlalchemy import Column, Integer, String, Boolean, Enum as sqEnum
 from base import Base
+from enum import Enum
+
+class UserStatus(Enum):
+    READY = 'ready'
+    FIGHTING = 'fighting'
+    DUELLING = 'duelilng'
+    SET_NAME = 'set_name'
+    STARTING_DUEL = 'starting_duel'
+    GOING = 'going'
+    DUELLING_ATTACKED = 'duelling_attacked'
 
 class User(Base):
     __tablename__ = 'users'
     chat_id = Column(Integer, primary_key=True)
-    location = Column(Enum(Location))
+    location = Column(sqEnum(Location))
     max_health = Column(Integer)
     health = Column(Integer)
     mana = Column(Integer)
     max_mana = Column(Integer)
     name = Column(String(50))
-    status= Column(String(50))
+    status= Column(sqEnum(UserStatus))
     fighting = None
     opponent = Column(Integer)
     mindamage = Column(Integer)
@@ -33,7 +43,7 @@ class User(Base):
         self.mana = 100
         self.max_mana = 100
         self.name = ""
-        self.status = "set_name"
+        self.status = UserStatus.SET_NAME
         self.fighting = None
         self.mindamage = 2
         self.maxdamage = 4
@@ -91,7 +101,7 @@ class User(Base):
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + '\n\n'
 
     def die(self):
-        self.status == 'ready'
+        self.status == UserStatus.READY
         self.location = Location.VILLAGE
         self.health = self.max_health
         self.mana = self.max_mana

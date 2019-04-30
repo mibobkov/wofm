@@ -91,7 +91,7 @@ actionsin[Location.DOGO_VILLAGE] = []
 actionsin[Location.HOUSE_OF_THE_GREATER_DOGO] = []
 actionsin[Location.DOGO_POND] = []
 for place in actionsin:
-    actionsin[place] += ['Go somewhere'], ['Leaderboard']
+    actionsin[place] += ['Inventory'], ['Go somewhere'], ['Leaderboard']
 
 
 from monster import *
@@ -99,7 +99,7 @@ monsterParams = [rat_params, goblin_params, spider_params, wolf_params, devil_pa
 monsterSpawnRates = {}
 monsterSpawnRates[Location.VILLAGE] = [0, 0, 0, 0, 0]
 monsterSpawnRates[Location.ARENA] = [0, 0, 0, 0, 0]
-monsterSpawnRates[Location.FOREST] = [0.1, 0.05, 0.2, 0.1, 0]
+monsterSpawnRates[Location.FOREST] = [0.6, 0.05, 0.1, 0.1, 0]
 monsterSpawnRates[Location.LAKE] = [0, 0, 0.2, 0.05, 0]
 monsterSpawnRates[Location.TOWN] = [0, 0, 0, 0, 0]
 monsterSpawnRates[Location.FOUNTAIN] = [0, 0, 0, 0, 0]

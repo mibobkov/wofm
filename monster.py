@@ -39,6 +39,24 @@ class Monster(Base):
     def get_damage(self):
         return random.randint(self.mindamage, self.maxdamage)
 
+    def get_loot(self):
+        loot_rate = loot_rates[self.name]
+        loot = {}
+        for l in loot_rate:
+            r = random.random()
+            if r < loot_rate[l]:
+                loot[l] = 1
+        return loot
+
+
+
+from resource_entry import Resource
+loot_rates = {'Rat': {Resource.MEAT: 1},
+           'Goblin' : {},
+           'Spider' : {},
+           'Wolf' : {},
+           'Devil' : {}
+           }
 rat_params = ('Rat', 'You see a rat. This rat is agressive because it is ugly\n', 10, 1, 2, 2, 2)
 goblin_params = ('Goblin', 'You see Goblin. Goblin. Goblin, Gobliiiiiin. Nasty creature with eyes of emerald green. \n', 30, 4, 8, 8, 10)
 spider_params = ('Spider', 'You see a spider. Its called Spider-spider, because it is half spider, half spider. \n', 15, 1, 4, 2, 4)

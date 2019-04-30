@@ -3,6 +3,7 @@ from user import User, UserStatus
 from monster import Monster
 from monster import rat_params
 from copy import copy, deepcopy
+from resource_entry import ResourceEntry, Resource
 
 class MessageProcessor:
     def __init__(self, entityManager, messageSender):
@@ -98,9 +99,22 @@ class MessageProcessor:
             exp = monster.get_exp()
             user.give_gold(gold)
             user.give_exp(exp)
+            resources = monster.get_loot()
+            loot_text = ''
+            for r in resources:
+                loot_text += '{}: {}\n'.format(str(r), resources[r])
+                current_res = self.entityManager.getEntityByTwoFields(ResourceEntry, 'user_id', user.chat_id, 'resource', r)
+                if current_res != None:
+                    current_res.quantity += resources[r]
+                else:
+                    current_res = ResourceEntry(user.chat_id, r, resources[r])
+                    self.entityManager.add(current_res)
+            if loot_text != '':
+                loot_text = 'Loot:\n' + loot_text
             text = user.stats_text() + \
                    text + \
-                   'You killed the monster and gained <b>{}</b> exp and <b>{}</b> gold!'.format(exp, gold)
+                   'You killed the monster and gained <b>{}</b> exp and <b>{}</b> gold!\n'.format(exp, gold) + \
+                   loot_text
             user.status = UserStatus.READY
             self.entityManager.delete(monster)
             keyboard = self.generateLocationActions(user)
@@ -212,6 +226,13 @@ class MessageProcessor:
             self.ms.send_message(user.chat_id, user.battle_text() + opponent.battle_text() + user_text, keyboard=fightactions if not finished else self.generateLocationActions(user))
             self.ms.send_message(opponent.chat_id, opponent.battle_text() + user.battle_text() + opponent_text, keyboard=fightactions if not finished else self.generateLocationActions(opponent))
 
+    def show_inventory(self, user, message):
+        resources = self.entityManager.getAllByField(ResourceEntry, 'user_id', user.chat_id)
+        text = 'Inventory: \n'
+        for r in resources:
+            text += '{} x {}\n'.format(str(r.resource), r.quantity)
+        self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
+
     #######################
     ## Command handlers: ##
     #######################
@@ -235,6 +256,7 @@ class MessageProcessor:
             elif len(message.split(' ')) == 2 \
                  and message.split(' ')[0] == 'Duel': self.accept_duel(user, message)
             elif message == 'Leaderboard':            self.show_leaderboard(user, message)
+            elif message == 'Inventory':              self.show_inventory(user, message)
         else:
             self.ms.send_message(user.chat_id, user.stats_text(), keyboard=self.generateLocationActions(user))
         self.entityManager.commit()

@@ -6,6 +6,7 @@ from configuration import TOKEN, db_param
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from base import Base
+from BotMessageSender import BotMessageSender
 from MessageProcessor import MessageProcessor
 from EntityManager import EntityManager
 
@@ -24,18 +25,24 @@ dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.DEBUG)
 
-mp = MessageProcessor(entity_manager)
+ms = BotMessageSender(updater.bot)
+mp = MessageProcessor(entity_manager, ms)
 
 def start(bot, update):
-    mp.start(bot, update)
+    mp.start(update.message.chat_id, update.message.text)
 
 def message(bot, update):
-    mp.message(bot, update)
+    mp.message(update.message.chat_id, update.message.text)
+
+def broadcast(bot, update):
+    mp.broadcast(update.message.chat_id, update.message.text)
 
 start_handler = CommandHandler('start', start)
 message_handler = MessageHandler([Filters.text], message)
+broadcast_handler = CommandHandler('broadcast', broadcast)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(message_handler)
+dispatcher.add_handler(broadcast_handler)
 
 updater.start_polling()

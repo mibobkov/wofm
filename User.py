@@ -42,9 +42,6 @@ class User(Base):
         self.level = 1
         self.levelled_up = False
 
-    def set_bot(self, bot):
-        self.bot = bot
-
     def set_name(self, name):
         self.name = name
 
@@ -101,10 +98,3 @@ class User(Base):
 
     def receive_damage(self, damage):
         self.health = max(0, self.health-damage)
-
-    def send_message(self, text, keyboard=None):
-        if keyboard != None:
-            markup = telegram.ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True,)
-        else:
-            markup = telegram.ReplyKeyboardRemove()
-        self.bot.send_message(chat_id=self.chat_id, text=text, reply_markup=markup, parse_mode=telegram.ParseMode.HTML)

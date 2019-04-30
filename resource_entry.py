@@ -5,9 +5,15 @@ from sqlalchemy import Column, Integer, String, Boolean, Enum as sqEnum, Foreign
 class Resource(Enum):
     MEAT = 'meat'
     PELT = 'pelt'
+    WOLF_FANG = 'wolf fang'
+    GOBLIN_EAR = 'goblin ear'
+    CLUB = 'club'
+    AEGON_TARGARYEN = 'Aegon Targaryen'
+    AMARANTHINE = 'Amaranthine'
 
     def __init__(self, string):
         self.string = string
+
     def __str__(self):
         return self.string.capitalize()
 

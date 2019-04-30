@@ -89,7 +89,7 @@ class User(Base):
         self.levelled_up = False
         return u'\U0001F466''<b>{}</b>\n'.format(self.name) + \
                u'\U000026A1'"Level: {}\n".format(self.level) + \
-               u'\U0001F534'"Health: {}/{}\n".format(self.health, self.max_health) + \
+               u'\U00002764'"Health: {}/{}\n".format(self.health, self.max_health) + \
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + \
                u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, int(self.next_level_req())) + \
                u"{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
@@ -97,7 +97,7 @@ class User(Base):
     def battle_text(self):
         return u'\U0001F466''<b>{}</b>\n'.format(self.name) + \
                u'\U000026A1'"Level: {}\n".format(self.level) + \
-               u'\U0001F534'"Health: {}/{}\n".format(self.health, self.max_health) + \
+               u'\U00002764'"Health: {}/{}\n".format(self.health, self.max_health) + \
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + '\n\n'
 
     def die(self):

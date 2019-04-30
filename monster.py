@@ -52,9 +52,9 @@ class Monster(Base):
 
 from resource_entry import Resource
 loot_rates = {'Rat': {Resource.MEAT: 1},
-           'Goblin' : {},
-           'Spider' : {},
-           'Wolf' : {},
+           'Goblin' : {Resource.GOBLIN_EAR: 0.7, Resource.AMARANTHINE: 0.2, Resource.AEGON_TARGARYEN: 0.1},
+           'Spider' : {Resource.AMARANTHINE: 0.4, Resource.AEGON_TARGARYEN: 0.2},
+           'Wolf' : {Resource.PELT: 1, Resource.AMARANTHINE: 0.4, Resource.AEGON_TARGARYEN: 0.2 },
            'Devil' : {}
            }
 rat_params = ('Rat', 'You see a rat. This rat is agressive because it is ugly\n', 10, 1, 2, 2, 2)

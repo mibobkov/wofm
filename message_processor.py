@@ -86,9 +86,8 @@ class MessageProcessor:
         damage_received = monster.get_damage()
         user.receive_damage(damage_received)
         monster.receive_damage(damage_dealt)
-        text = ('You dealt {} damage and received {} damage.\n' +
-               'Remaining health: {}/{}\n' +
-               '{}: {}/{}\n').format(damage_dealt, damage_received, user.health, user.max_health, monster.name, monster.health, monster.maxhealth)
+        text = ( u'\U00002764''{} Health: {}/{}\n\n'.format(monster.name, monster.health, monster.maxhealth) +
+                'You dealt <b>{} damage</b> and received <b>{} damage</b>.\n').format(damage_dealt, damage_received)
         if user.health == 0:
             user.die()
             self.entityManager.delete(monster)
@@ -102,7 +101,7 @@ class MessageProcessor:
             resources = monster.get_loot()
             loot_text = ''
             for r in resources:
-                loot_text += '{}: {}\n'.format(str(r), resources[r])
+                loot_text += '<b>{}: {}</b>\n'.format(str(r), resources[r])
                 current_res = self.entityManager.getEntityByTwoFields(ResourceEntry, 'user_id', user.chat_id, 'resource', r)
                 if current_res != None:
                     current_res.quantity += resources[r]
@@ -110,15 +109,16 @@ class MessageProcessor:
                     current_res = ResourceEntry(user.chat_id, r, resources[r])
                     self.entityManager.add(current_res)
             if loot_text != '':
-                loot_text = 'Loot:\n' + loot_text
+                loot_text = '\nLoot:\n\n' + loot_text + '----------'
             text = user.stats_text() + \
                    text + \
-                   'You killed the monster and gained <b>{}</b> exp and <b>{}</b> gold!\n'.format(exp, gold) + \
+                   'You killed the monster and gained <b>{} exp</b> and <b>{} gold</b>!\n'.format(exp, gold) + \
                    loot_text
             user.status = UserStatus.READY
             self.entityManager.delete(monster)
             keyboard = self.generateLocationActions(user)
         else:
+            text = user.battle_text() + text
             keyboard = fightactions
         self.ms.send_message(user.chat_id, text, keyboard=keyboard)
         #else:
@@ -228,9 +228,10 @@ class MessageProcessor:
 
     def show_inventory(self, user, message):
         resources = self.entityManager.getAllByField(ResourceEntry, 'user_id', user.chat_id)
-        text = 'Inventory: \n'
+        text = 'Inventory: \n\n'
         for r in resources:
             text += '{} x {}\n'.format(str(r.resource), r.quantity)
+        text += '------------'
         self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
 
     #######################
@@ -238,6 +239,7 @@ class MessageProcessor:
     #######################
 
     def message(self, chat_id, message):
+        print(message)
         user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
         if not user:
             self.register_user(chat_id)

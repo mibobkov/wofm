@@ -3,57 +3,57 @@ from enum import Enum
 class Location(Enum):
     VILLAGE  = 'village', \
                'You are in the village. \n', \
-               ['arena', 'forest'], \
+               {'S': None, 'N': None, 'W': 'arena', 'E': 'forest'}, \
                u'\U0001F3E0', \
                1
     FOREST   = 'forest', \
-               'You are in the forest. Villagers are following you. Why? Nobody knows.\n',\
-               ['village', 'lake'],\
+               'You are in the forest. Villagers are following you. Why? Nobody knows.\n', \
+               {'S': None, 'N': None, 'W': 'village', 'E': 'lake'}, \
                u'\U0001F332', \
                2
     ARENA    = 'arena', \
                'You are in the arena. You see a pair of gladiators fighting. You want to join but the desire to live stops you from such rash actions.\n', \
-               ['village'], \
+               {'S': None, 'N': None, 'W': None, 'E': 'village'}, \
                u'\U0001F93A', \
                3
     LAKE     = 'lake', \
                'You are near a giant lake.',\
-               ['forest', 'town'],\
+               {'S': None, 'N': None, 'W': 'forest', 'E': 'town'}, \
                u'\U0001F4A7', \
                4
     TOWN     = 'town', \
                'You are in a small town.',\
-               ['lake', 'fountain', 'Mielee forest'], \
+               {'S': 'fountain', 'N': 'Mielee forest', 'W': 'lake', 'E': None}, \
                u'\U0001F3E0', \
                5
     FOUNTAIN = 'fountain', \
                'You are near a small magical fountain. They say if you drink from it, your strength will be restored.', \
-               ['town'], \
+               {'S': None, 'N': 'town', 'W': None, 'E': None}, \
                u'\U0001F4A7', \
                6
     MIELEE_FOREST = 'Mielee forest', \
                     'You are in the Mielee forest. Its nice and fresh and it seems like one can stay here forever.', \
-                    ['town', 'Mielee forest hut'], \
+                    {'S': 'town', 'N': 'Mielee forest hut', 'W': None, 'E': None}, \
                     u'\U0001F332', \
                     7
     MIELEE_FOREST_HUT = 'Mielee forest hut', \
                       'Abandoned hut, where travellers can stay and relax.', \
-                      ['Mielee forest', 'Dogo village'], \
-                      u'\U0001F3E0', \
+                        {'S': 'Mielee forest', 'N': 'Dogo village', 'W': None, 'E': None}, \
+                        u'\U0001F3E0', \
                       8
     DOGO_VILLAGE = 'Dogo village', \
                    'You are in a dogo village. Dogos seem to be very friendly creatures and quite hardworking.', \
-                   ['Mielee forest hut', 'House of the Great Dogo', 'Dogo Pond'], \
+                   {'S': 'Mielee forest hut', 'N': None, 'W': 'Dogo pond', 'E': 'House of the Great Dogo'}, \
                    u'\U0001F3E0', \
                    9
     HOUSE_OF_THE_GREAT_DOGO = 'House of the Great Dogo', \
                                 'You are in a house of the Great Dogo, the most respected and influential figure in this town.', \
-                                ['Dogo village'], \
-                                u'\U0001F3E0', \
+                              {'S': None, 'N': None, 'W': 'Dogo village', 'E': None}, \
+                              u'\U0001F3E0', \
                                 10
     DOGO_POND = 'Dogo Pond', \
                 'You approach an oddly shaped dark pond, that dogos seem to avoid and never look at.', \
-                ['Dogo village'], \
+                {'S': None, 'N': None, 'W': None, 'E': 'Dogo village'}, \
                 u'\U0001F3E0', \
                 11
 
@@ -88,8 +88,10 @@ class Location(Enum):
     @property
     def prettypaths(self):
         prettypaths = []
-        for path in self.paths:
-            prettypaths.append(self.toEnum(path).emoji+path.capitalize())
+        for p in self.paths:
+            path = self.paths[p]
+            if self.paths[p] != None:
+                prettypaths.append(self.toEnum(path).emoji+path.capitalize())
         return prettypaths
 
     @property

@@ -103,18 +103,24 @@ class User(Base):
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + '\n\n'
 
     def location_text(self):
-        from locations import pathkeyboards
-        text = ''
-        for loc in pathkeyboards[self.location]:
-            location = Location.toEnum(loc[0])
-            location_id = location.id
-            text += location.emoji+location.cstring + ' /go_' + str(location_id) + '\n'
-        if text != '':
-            text += '\n'
+        paths = self.location.paths
+        nPath = None if not paths['N'] else Location.toEnum(paths['N'])
+        sPath = None if not paths['S'] else Location.toEnum(paths['S'])
+        wPath = None if not paths['W'] else Location.toEnum(paths['W'])
+        ePath = None if not paths['E'] else Location.toEnum(paths['E'])
+
+        nPathString = nPath.emoji + '/go_' + str(nPath.id) + ' ' + nPath.cstring if nPath else ''
+        sPathString = sPath.emoji + '/go_' + str(sPath.id) + ' ' + sPath.cstring if sPath else ''
+        ePathString = ePath.emoji + '/go_' + str(ePath.id) + ' ' + ePath.cstring if ePath else ''
+
+        text  = '             {}\n'.format(nPathString)
+        text += '    {}{}{}\n'.format('__' + wPath.emoji if wPath else '         ', u'\U0001F466', ePathString)
+        text += '  {}          {}\n'.format('/' if wPath else ' ', sPathString)
+        text += '/go_{}\n'.format(str(wPath.id) + ' ' +  wPath.cstring + '\n') if wPath else '\n'
         return text
 
     def die(self):
-        self.status == UserStatus.READY
+        self.status = UserStatus.READY
         self.location = Location.VILLAGE
         self.health = self.max_health
         self.mana = self.max_mana

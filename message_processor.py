@@ -1,7 +1,6 @@
 from locations import *
 from user import User, UserStatus
 from monster import Monster
-from monster import rat_params
 from copy import copy, deepcopy
 from resource_entry import ResourceEntry, Resource
 from quotes import Quotes
@@ -52,14 +51,14 @@ class MessageProcessor:
             actions += [['Duel']]
         return actions
 
-    def go_to_location(self, user, message):
-        if Location.toEnum(message) in [Location.toEnum(x) for x in user.location.paths]:
-            self.delete_monster(user.chat_id)
-            user.location = Location.toEnum(message)
-            user.status = UserStatus.READY
-            spawned_monster = self.spawn_monsters(user.chat_id, user.location)
-            actions = self.generateLocationActions(user)
-            self.ms.send_message(user.chat_id, user.stats_text() + user.location.text +'\n' + ('' if not spawned_monster else spawned_monster.text), keyboard=actions)
+    # def go_to_location(self, user, message):
+    #     if Location.toEnum(message) in [Location.toEnum(x) for x in user.location.paths]:
+    #         self.delete_monster(user.chat_id)
+    #         user.location = Location.toEnum(message)
+    #         user.status = UserStatus.READY
+    #         spawned_monster = self.spawn_monsters(user.chat_id, user.location)
+    #         actions = self.generateLocationActions(user)
+    #         self.ms.send_message(user.chat_id, user.stats_text() + user.location.text +'\n' + ('' if not spawned_monster else spawned_monster.text), keyboard=actions)
 
     # def choose_location(self, user, message):
     #     user.status = UserStatus.GOING
@@ -99,6 +98,7 @@ class MessageProcessor:
             self.entityManager.delete(monster)
             self.ms.send_message(user.chat_id, 'You died, but were revived in the village by the hobo community.\n')
             keyboard = self.generateLocationActions(user)
+            self.ms.send_message(user.chat_id, user.stats_text(), keyboard=keyboard)
         elif monster.health == 0:
             gold = monster.get_gold()
             exp = monster.get_exp()
@@ -115,18 +115,19 @@ class MessageProcessor:
                     current_res = ResourceEntry(user.chat_id, r, resources[r])
                     self.entityManager.add(current_res)
             if loot_text != '':
-                loot_text = '\nLoot:\n\n' + loot_text + '----------'
-            text = user.stats_text() + \
-                   text + \
+                loot_text = '\nLoot:\n\n' + loot_text
+            text = text + \
                    ('You killed the monster and gained'+ u'\U0001F4A1''<b>{} exp</b> and ' + u'\U0001F4B0''<b>{} gold</b>!\n').format(exp, gold) + \
                    loot_text
             user.status = UserStatus.READY
             self.entityManager.delete(monster)
+            self.ms.send_message(user.chat_id, text, keyboard=[])
             keyboard = self.generateLocationActions(user)
+            self.ms.send_message(user.chat_id, user.stats_text(), keyboard=keyboard)
         else:
             text = user.battle_text() + text
             keyboard = fightactions
-        self.ms.send_message(user.chat_id, text, keyboard=keyboard)
+            self.ms.send_message(user.chat_id, text, keyboard=keyboard)
         #else:
         #    user.send_message('You are not fighting anyone\n', keyboard=actionsin[user.location])
 
@@ -192,8 +193,8 @@ class MessageProcessor:
             user.opponent = target_user.chat_id
             target_user.opponent = user.chat_id
             target_user.status = UserStatus.DUELLING
-            self.ms.send_message(user.chat_id, user.stats_text() + target_user.stats_text(), keyboard=fightactions)
-            self.ms.send_message(target_user.chat_id, target_user.stats_text() + user.stats_text(), keyboard=fightactions)
+            self.ms.send_message(user.chat_id, user.battle_text() + target_user.battle_text(), keyboard=fightactions)
+            self.ms.send_message(target_user.chat_id, target_user.battle_text() + user.battle_text(), keyboard=fightactions)
 
     def duel(self, user, message):
         if message != 'Attack':
@@ -223,14 +224,15 @@ class MessageProcessor:
                 user_text += '<b>You won!</b>\n'
                 opponent_text += '<b>You lost!</b>\n'
             finished = user.health == 0 or opponent.health == 0
+            self.ms.send_message(user.chat_id, user.battle_text() + opponent.battle_text() + user_text, keyboard=fightactions)
+            self.ms.send_message(opponent.chat_id, opponent.battle_text() + user.battle_text() + opponent_text, keyboard=fightactions)
             if finished:
                 user.status = UserStatus.READY
                 opponent.status = UserStatus.READY
                 user.opponent = None
                 opponent.opponent = None
-
-            self.ms.send_message(user.chat_id, user.battle_text() + opponent.battle_text() + user_text, keyboard=fightactions if not finished else self.generateLocationActions(user))
-            self.ms.send_message(opponent.chat_id, opponent.battle_text() + user.battle_text() + opponent_text, keyboard=fightactions if not finished else self.generateLocationActions(opponent))
+                self.ms.send_message(user.chat_id, user.stats_text() + user_text, keyboard=self.generateLocationActions(user))
+                self.ms.send_message(opponent.chat_id, opponent.stats_text() + opponent_text, keyboard=self.generateLocationActions(opponent))
 
     def show_inventory(self, user, message):
         resources = self.entityManager.getAllByField(ResourceEntry, 'user_id', user.chat_id)
@@ -308,7 +310,7 @@ class MessageProcessor:
             return
         location_id = message.split(' ')[0].split('_')[1]
         location = Location.idToEnum(int(location_id))
-        if location in [Location.toEnum(x) for x in user.location.paths]:
+        if location in [Location.toEnum(user.location.paths[x]) for x in user.location.paths if user.location.paths[x] != None]:
             self.delete_monster(user.chat_id)
             user.location = location
             user.status = UserStatus.READY
@@ -317,6 +319,7 @@ class MessageProcessor:
             self.ms.send_message(user.chat_id, user.stats_text() + user.location.text +'\n' + ('' if not spawned_monster else spawned_monster.text), keyboard=actions)
         else:
             print('some error')
+        self.entityManager.commit()
 
     def start(self, chat_id, message):
         self.ms.send_message(chat_id=chat_id, text="Welcome to the World of Magic!")

@@ -1,7 +1,7 @@
 from locations import *
-from User import User, UserStatus
-from Monster import Monster
-from Monster import rat_params
+from user import User, UserStatus
+from monster import Monster
+from monster import rat_params
 from copy import copy, deepcopy
 
 class MessageProcessor:

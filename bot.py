@@ -6,9 +6,9 @@ from configuration import TOKEN, db_param
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from base import Base
-from BotMessageSender import BotMessageSender
-from MessageProcessor import MessageProcessor
-from EntityManager import EntityManager
+from bot_message_sender import BotMessageSender
+from message_processor import MessageProcessor
+from entity_manager import EntityManager
 
 # Setting up mysqlalchemy
 engine = create_engine(db_param, echo=True)

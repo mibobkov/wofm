@@ -94,7 +94,7 @@ for place in actionsin:
     actionsin[place] += ['Go somewhere'], ['Leaderboard']
 
 
-from Monster import *
+from monster import *
 monsterParams = [rat_params, goblin_params, spider_params, wolf_params, devil_params]
 monsterSpawnRates = {}
 monsterSpawnRates[Location.VILLAGE] = [0, 0, 0, 0, 0]

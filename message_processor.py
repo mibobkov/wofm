@@ -51,7 +51,7 @@ class MessageProcessor:
         return actions
 
     def go_to_location(self, user, message):
-        if message in user.location.prettypaths:
+        if Location.toEnum(message) in [Location.toEnum(x) for x in user.location.paths]:
             self.delete_monster(user.chat_id)
             user.location = Location.toEnum(message)
             user.status = UserStatus.READY
@@ -144,11 +144,13 @@ class MessageProcessor:
         target_user = self.entityManager.getEntityByField(User, 'chat_id', message)
         if not target_user:
             user.status = UserStatus.READY
-            self.ms.send_message(user.chat_id, 'Sorry, no such player\n')
+            self.ms.send_message(user.chat_id, 'Sorry, no such player\n', self.generateLocationActions(user))
         elif target_user.location != Location.ARENA:
-            self.ms.send_message(user.chat_id, 'Sorry, this player has left the arena\n')
+            user.status = UserStatus.READY
+            self.ms.send_message(user.chat_id, 'Sorry, this player has left the arena\n', self.generateLocationActions(user))
         elif target_user.status != UserStatus.READY:
-            self.ms.send_message(user.chat_id, "Sorry, this player seems to be busy\n")
+            user.status = UserStatus.READY
+            self.ms.send_message(user.chat_id, "Sorry, this player seems to be busy\n", self.generateLocationActions(user))
         else:
             self.ms.send_message(user.chat_id, "Sent the invitation to the user.\n")
             self.ms.send_message(target_user.chat_id, "You have received a duel invite from {}.".format(user.name), keyboard=self.generateLocationActions(target_user) + [["Duel {}".format(user.chat_id)]])

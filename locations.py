@@ -2,12 +2,12 @@ from enum import Enum
 
 class Location(Enum):
     VILLAGE  = 'village', \
-               'You are in the village. \n', \
+               'You are in the village. It seems like the orcs have driven the villagers away and occupied the village\n', \
                {'S': None, 'N': None, 'W': 'arena', 'E': 'forest'}, \
                u'\U0001F3E0', \
                1
     FOREST   = 'forest', \
-               'You are in the forest. Villagers are following you. Why? Nobody knows.\n', \
+               'You are in the forest. Orcs are following you. Why? Cause they don\'t like you.\n', \
                {'S': None, 'N': None, 'W': 'village', 'E': 'lake'}, \
                u'\U0001F332', \
                2
@@ -23,7 +23,7 @@ class Location(Enum):
                4
     TOWN     = 'town', \
                'You are in a small town.',\
-               {'S': 'fountain', 'N': 'Mielee forest', 'W': 'lake', 'E': None}, \
+               {'S': 'fountain', 'N': 'Mielee forest', 'W': 'lake', 'E': 'Weapon shop'}, \
                u'\U0001F3E0', \
                5
     FOUNTAIN = 'fountain', \
@@ -56,7 +56,11 @@ class Location(Enum):
                 {'S': None, 'N': None, 'W': None, 'E': 'Dogo village'}, \
                 u'\U0001F3E0', \
                 11
-
+    WEAPON_SHOP = 'Weapon shop', \
+                  'You are in a weapon shop, preparing to spend your last money on exorbitantly overpriced iWeapons.', \
+                  {'S': None, 'N': None, 'W': 'town', 'E': None}, \
+                  u'\U0001F3E0', \
+                  12
     def __init__(self, string, text, paths, emoji, id):
         self.emoji = emoji
         self.text = text
@@ -110,24 +114,26 @@ actionsin[Location.MIELEE_FOREST_HUT] = []
 actionsin[Location.DOGO_VILLAGE] = []
 actionsin[Location.HOUSE_OF_THE_GREAT_DOGO] = [['Speak to the Great Dogo']]
 actionsin[Location.DOGO_POND] = []
+actionsin[Location.WEAPON_SHOP] = [['Trade']]
 for place in actionsin:
     actionsin[place] += ['Inventory'], ['Leaderboard']
 
 
 from monster import *
-monsterParams = [rat_params, goblin_params, spider_params, wolf_params, devil_params]
+monsterParams = [rat_params, goblin_params, spider_params, wolf_params, devil_params, orc_params]
 monsterSpawnRates = {}
-monsterSpawnRates[Location.VILLAGE] = [0, 0, 0, 0, 0]
-monsterSpawnRates[Location.ARENA] = [0, 0, 0, 0, 0]
-monsterSpawnRates[Location.FOREST] = [0.3, 0.05, 0.3, 0.1, 0]
-monsterSpawnRates[Location.LAKE] = [0, 0.3, 0.2, 0.05, 0]
-monsterSpawnRates[Location.TOWN] = [0, 0, 0, 0, 0]
-monsterSpawnRates[Location.FOUNTAIN] = [0, 0, 0, 0, 0]
-monsterSpawnRates[Location.MIELEE_FOREST] = [0, 0, 0.1, 0.05, 0]
-monsterSpawnRates[Location.MIELEE_FOREST_HUT] = [0, 0, 0, 0, 0]
-monsterSpawnRates[Location.DOGO_VILLAGE] = [0, 0, 0, 0, 0]
-monsterSpawnRates[Location.HOUSE_OF_THE_GREAT_DOGO] = [0, 0, 0, 0, 0]
-monsterSpawnRates[Location.DOGO_POND] = [0, 0, 0, 0, 1]
+monsterSpawnRates[Location.VILLAGE] = [0, 0.2, 0, 0, 0, 0.6]
+monsterSpawnRates[Location.ARENA] = [0, 0, 0, 0, 0, 0]
+monsterSpawnRates[Location.FOREST] = [0.2, 0.15, 0.2, 0.1, 0, 0.2]
+monsterSpawnRates[Location.LAKE] = [0, 0.3, 0.2, 0.05, 0, 0.1]
+monsterSpawnRates[Location.TOWN] = [0, 0, 0, 0, 0, 0]
+monsterSpawnRates[Location.FOUNTAIN] = [0, 0, 0, 0, 0, 0]
+monsterSpawnRates[Location.MIELEE_FOREST] = [0, 0, 0.1, 0.05, 0, 0]
+monsterSpawnRates[Location.MIELEE_FOREST_HUT] = [0, 0, 0, 0, 0, 0]
+monsterSpawnRates[Location.DOGO_VILLAGE] = [0, 0, 0, 0, 0, 0]
+monsterSpawnRates[Location.HOUSE_OF_THE_GREAT_DOGO] = [0, 0, 0, 0, 0, 0]
+monsterSpawnRates[Location.DOGO_POND] = [0, 0, 0, 0, 1, 0]
+monsterSpawnRates[Location.WEAPON_SHOP] = [0, 0, 0, 0, 0, 0]
 
 pathkeyboards = {}
 for location in Location:

@@ -40,10 +40,15 @@ def broadcast(bot, update):
 def go(bot, update):
     mp.go(update.message.chat_id, update.message.text)
 
+def buy(bot, update):
+    mp.buy(update.message.chat_id, update.message.text)
+
+def equip(bot, update):
+    mp.equip(update.message.chat_id, update.message.text)
+
 start_handler = CommandHandler('start', start)
 message_handler = MessageHandler([Filters.text], message)
 broadcast_handler = CommandHandler('broadcast', broadcast)
-
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(message_handler)
@@ -51,6 +56,14 @@ dispatcher.add_handler(broadcast_handler)
 
 for i in range(0, 100):
     h = CommandHandler('go_' + str(i), go)
+    dispatcher.add_handler(h)
+
+for i in range(0, 100):
+    h = CommandHandler('buy_w' + str(i), buy)
+    dispatcher.add_handler(h)
+
+for i in range(0, 100):
+    h = CommandHandler('equip_w' + str(i), equip)
     dispatcher.add_handler(h)
 
 updater.start_polling()

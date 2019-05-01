@@ -4,6 +4,7 @@ from monster import Monster
 from copy import copy, deepcopy
 from resource_entry import ResourceEntry, Resource
 from quotes import Quotes
+from weapon_entry import Weapon, WeaponEntry
 
 class MessageProcessor:
     def __init__(self, entityManager, messageSender):
@@ -236,10 +237,15 @@ class MessageProcessor:
 
     def show_inventory(self, user, message):
         resources = self.entityManager.getAllByField(ResourceEntry, 'user_id', user.chat_id)
-        text = 'Inventory: \n\n'
+        weapons = self.entityManager.getAllByField(WeaponEntry, 'user_id', user.chat_id)
+        text = 'Resources:\n'
         for r in resources:
             text += '{} x {}\n'.format(str(r.resource), r.quantity)
-        text += '------------'
+        text += '------------\n\n'
+        text += 'Weapons:\n'
+        for w in weapons:
+            text += '/equip_w{} {} x {}\n'.format(Weapon.toEnum(w.name).id, w.name, w.quantity)
+        text += '------------\n'
         self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
 
     def speak_to_great_dogo(self, user, message):
@@ -258,10 +264,69 @@ class MessageProcessor:
         text = 'Drink! Drink! Drink! Piracy\'s a crime, but drinking from the fountain of youth is not. You restored you health and mana.\n'
         self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
 
+    def trade(self, user, message):
+        if user.location != Location.WEAPON_SHOP:
+            return
+        items = {Weapon.DAGGER, Weapon.SCIMITAR, Weapon.SWORD, Weapon.SWORD_OF_DAWN}
+        text = 'Greetings traveller, what do you wanna buy?\n'
+        for i in items:
+            text += '/buy_w{} {}: {} gold\n'.format(i.id, i.cstring, i.base_cost)
+        self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
 
     #######################
     ## Command handlers: ##
     #######################
+
+    def buy(self, chat_id, message):
+        user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
+        if not user:
+            self.register_user(chat_id)
+            self.entityManager.commit()
+            return
+        if user.status != UserStatus.READY:
+            return
+        item_type = message.split(' ')[0].split('_')[1][0]
+        if item_type != 'w':
+            return
+        else:
+            weapon_id = message.split(' ')[0].split('_')[1][1:]
+            print(weapon_id)
+            weapon = Weapon.idToEnum(weapon_id)
+            print(weapon)
+            if weapon == None:
+                return
+            if user.gold > weapon.base_cost:
+                user.gold -= weapon.base_cost
+                weapon_entry = self.entityManager.getEntityByTwoFields(WeaponEntry, 'user_id', user.chat_id, 'name', weapon.cstring)
+                if weapon_entry == None:
+                    weapon_entry = WeaponEntry(weapon.cstring, user.chat_id, 1)
+                    self.entityManager.add(weapon_entry)
+                else:
+                    weapon_entry.quantity += 1
+                self.ms.send_message(user.chat_id, user.stats_text() + 'You have bought {}!\n'.format(weapon.cstring), self.generateLocationActions(user))
+            else:
+                self.ms.send_message(user.chat_id, 'Need more gold!\n', self.generateLocationActions(user))
+        self.entityManager.commit()
+
+    def equip(self, chat_id, message):
+        user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
+        if not user:
+            self.register_user(chat_id)
+            self.entityManager.commit()
+            return
+        if user.status != UserStatus.READY:
+            return
+        item_type = message.split(' ')[0].split('_')[1][0]
+        if item_type != 'w':
+            return
+        else:
+            weapon_id = message.split(' ')[0].split('_')[1][1:]
+            weapon = Weapon.idToEnum(weapon_id)
+            if weapon == None:
+                return
+            user.equipped_weapon = weapon_id
+            self.ms.send_message(user.chat_id, 'You equipped {}!\n'.format(weapon.cstring), self.generateLocationActions(user))
+            self.entityManager.commit()
 
     def message(self, chat_id, message):
         print(message)
@@ -284,6 +349,7 @@ class MessageProcessor:
             elif message == 'Inventory':               self.show_inventory(user, message)
             elif message == 'Speak to the Great Dogo': self.speak_to_great_dogo(user, message)
             elif message == 'Drink from the fountain': self.drink_from_the_fountain(user, message)
+            elif message == 'Trade':                   self.trade(user, message)
         else:
             self.ms.send_message(user.chat_id, user.stats_text(), keyboard=self.generateLocationActions(user))
         self.entityManager.commit()

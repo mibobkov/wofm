@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Boolean, Enum as sqEnum
 from base import Base
 from enum import Enum
+from weapon_entry import Weapon
 
 class UserStatus(Enum):
     READY = 'ready'
@@ -34,6 +35,7 @@ class User(Base):
     gold = Column(Integer)
     level = Column(Integer)
     levelled_up = Column(Boolean)
+    equipped_weapon = Column(Integer)
 
     def __init__(self, chat_id):
         self.chat_id = chat_id
@@ -51,12 +53,16 @@ class User(Base):
         self.gold = 0
         self.level = 1
         self.levelled_up = False
+        self.equipped_weapon = None
 
     def set_name(self, name):
         self.name = name
 
     def get_damage(self):
-        return random.randint(self.mindamage, self.maxdamage)
+        weapon_damage = 0
+        if self.equipped_weapon:
+            weapon_damage = Weapon.idToEnum(self.equipped_weapon).damage
+        return random.randint(self.mindamage+weapon_damage, self.maxdamage+weapon_damage)
 
     def give_gold(self, amount):
         self.gold += amount
@@ -70,7 +76,7 @@ class User(Base):
         return self.exp >= self.next_level_req()
 
     def next_level_req(self):
-        return math.ceil(10*(1.2**self.level-1)/(0.2))
+        return math.ceil(10*(1.3**self.level-1)/(0.2))
 
     def level_up(self):
         self.level += 1
@@ -87,12 +93,14 @@ class User(Base):
         if self.levelled_up:
             levelled_up_text = '<b>You have levelled up! Congratulations!</b>\n'
         self.levelled_up = False
+
         return u'\U0001F466''<b>{}</b>\n'.format(self.name) + \
                u'\U000026A1'"Level: {}\n".format(self.level) + \
                u'\U00002764'"Health: {}/{}\n".format(self.health, self.max_health) + \
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + \
                u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, int(self.next_level_req())) + \
                u'\U0001F4B0'"Gold: {}\n".format(self.gold) + \
+               u'\U0001F5E1''{}'.format('Equipped weapon: {}\n'.format(Weapon.idToEnum(self.equipped_weapon).cstring) if self.equipped_weapon else '') + \
                u"{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
                 levelled_up_text + '\n' + \
                 self.location_text()

@@ -63,7 +63,15 @@ for i in range(0, 100):
     dispatcher.add_handler(h)
 
 for i in range(0, 100):
+    h = CommandHandler('buy_a' + str(i), buy)
+    dispatcher.add_handler(h)
+
+for i in range(0, 100):
     h = CommandHandler('equip_w' + str(i), equip)
+    dispatcher.add_handler(h)
+
+for i in range(0, 100):
+    h = CommandHandler('equip_a' + str(i), equip)
     dispatcher.add_handler(h)
 
 updater.start_polling()

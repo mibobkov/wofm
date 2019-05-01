@@ -1,5 +1,7 @@
 import telegram
 import random
+
+from armor_entry import Armor
 from locations import Location
 import math
 from sqlalchemy import create_engine
@@ -36,6 +38,7 @@ class User(Base):
     level = Column(Integer)
     levelled_up = Column(Boolean)
     equipped_weapon = Column(Integer)
+    equipped_armor = Column(Integer)
 
     def __init__(self, chat_id):
         self.chat_id = chat_id
@@ -54,6 +57,7 @@ class User(Base):
         self.level = 1
         self.levelled_up = False
         self.equipped_weapon = None
+        self.equipped_armor = None
 
     def set_name(self, name):
         self.name = name
@@ -81,12 +85,12 @@ class User(Base):
     def level_up(self):
         self.level += 1
         self.levelled_up = True
-        self.max_health += 10
+        self.max_health = int(100*(1.08**(self.level-1)))
         self.health = self.max_health
         self.max_mana += 10
         self.mana = self.max_mana
-        self.mindamage += 1
-        self.maxdamage += 2
+        self.mindamage = 2 + self.level + ((self.level-1)*(self.level))//10
+        self.maxdamage = 4 + 2*self.level + 2*((self.level-1)*(self.level))//10
 
     def stats_text(self):
         levelled_up_text = ''
@@ -101,6 +105,7 @@ class User(Base):
                u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, int(self.next_level_req())) + \
                u'\U0001F4B0'"Gold: {}\n".format(self.gold) + \
                u'\U0001F5E1''{}'.format('Equipped weapon: {}\n'.format(Weapon.idToEnum(self.equipped_weapon).cstring) if self.equipped_weapon else '') + \
+               u'\U0001F5E1''{}'.format('Equipped armor: {}\n'.format(Armor.idToEnum(self.equipped_armor).cstring) if self.equipped_armor else '') + \
                u"{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
                 levelled_up_text + '\n' + \
                 self.location_text()
@@ -134,4 +139,8 @@ class User(Base):
         self.mana = self.max_mana
 
     def receive_damage(self, damage):
+        if self.equipped_armor:
+            armor = Armor.idToEnum(self.equipped_armor)
+            damage = max(0, int(damage*(1-armor.protection/100))-armor.protection)
         self.health = max(0, self.health-damage)
+        return damage

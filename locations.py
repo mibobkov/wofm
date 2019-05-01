@@ -8,7 +8,7 @@ class Location(Enum):
                1
     FOREST   = 'forest', \
                'You are in the forest. Orcs are following you. Why? Cause they don\'t like you.\n', \
-               {'S': None, 'N': None, 'W': 'village', 'E': 'lake'}, \
+               {'S': 'deep forest', 'N': None, 'W': 'village', 'E': 'lake'}, \
                u'\U0001F332', \
                2
     ARENA    = 'arena', \
@@ -61,6 +61,26 @@ class Location(Enum):
                   {'S': None, 'N': None, 'W': 'town', 'E': None}, \
                   u'\U0001F3E0', \
                   12
+    DEEP_FOREST   = 'deep forest', \
+               'You went deeper into the forest. It became darker and more menacing\n', \
+               {'S': 'ancient ruins', 'N': 'forest', 'W': None, 'E': None}, \
+               u'\U0001F332', \
+               13
+    ANCIENT_RUINS  = 'ancient ruins', \
+               'You approached ruins of an ancient fort. You feel uneasy.\n', \
+               {'S': None, 'N': 'deep forest', 'W': None, 'E': 'cemetry'}, \
+               u'\U0001F332', \
+               14
+    CEMETRY   = 'cemetry', \
+               'You see a vast cemetry and feel an aura of evil and malevolence.\n', \
+               {'S': 'tomb', 'N': None, 'W': 'ancient ruins', 'E': None}, \
+               u'\U0001F332', \
+               15
+    TOMB      = 'tomb', \
+               'You see a tomb. Evil beings seem to occupy it.\n', \
+               {'S': None, 'N': 'cemetry', 'W': None, 'E': None}, \
+               u'\U0001F332', \
+               16
     def __init__(self, string, text, paths, emoji, id):
         self.emoji = emoji
         self.text = text
@@ -124,6 +144,9 @@ Location.VILLAGE.monsterSpawnRates = {MonsterType.GOBLIN: 0.2, MonsterType.ORC: 
 Location.FOREST.monsterSpawnRates = {MonsterType.RAT: 0.2,  MonsterType.SPIDER: 0.2, MonsterType.WOLF: 0.1, MonsterType.ORC: 0.2}
 Location.LAKE.monsterSpawnRates = {MonsterType.GOBLIN: 0.3, MonsterType.SPIDER: 0.2, MonsterType.WOLF: 0.05, MonsterType.ORC: 0.1}
 Location.MIELEE_FOREST.monsterSpawnRates = {MonsterType.SPIDER:0.1, MonsterType.WOLF:0.05}
-Location.DOGO_POND.monsterSpawnRates = {MonsterType.DEVIL: 1}
+Location.DEEP_FOREST.monsterSpawnRates = {MonsterType.BEAR: 0.3, MonsterType.TROLL: 0.1, MonsterType.WOLF: 0.3}
+Location.ANCIENT_RUINS.monsterSpawnRates = {MonsterType.TROLL: 0.3, MonsterType.SKELETON: 0.2, MonsterType.BEAR: 0.2}
+Location.CEMETRY.monsterSpawnRates = {MonsterType.SKELETON: 0.3, MonsterType.ZOMBIE: 0.3}
+Location.TOMB.monsterSpawnRates = {MonsterType.ZOMBIE: 0.4, MonsterType.SKELETON: 0.5, MonsterType.LICH: 0.1}
 
 fightactions = [['Attack']]

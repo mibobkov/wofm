@@ -2,31 +2,29 @@ from base import Base
 from enum import Enum
 from sqlalchemy import Column, Integer, String, ForeignKey
 
-class Weapon(Enum):
-    DAGGER = 'dagger', 10, 2, 1
-    SCIMITAR = 'scimitar', 40, 5, 2
-    SWORD = 'sword', 100, 10, 3
-    SHARP_SWORD = 'sharp sword', 200, 15, 4
-    GREAT_SWORD = 'great sword', 800, 40, 5
-    SWORD_OF_DAWN = 'Sword of Dawn, Third of his Name, King of Vandals and Mother of Dogo', 4000, 200, 6
+class Armor(Enum):
+    LEATHER_JACKET = 'leather jacket', 20, 2, 1
+    CHAIN_MAIL = 'chain mail', 200, 10, 2
+    FULL_PLATE_ARMOR = 'full plate armor', 1000, 20, 3
+    MITHRIL_ARMOR = 'mithril armor', 4000, 30, 4
 
-    def __init__(self, string, base_cost, damage, id):
+    def __init__(self, string, base_cost, protection, id):
         self.string = string
         self.base_cost = base_cost
-        self.damage = damage
+        self.protection = protection
         self.id = id
 
     @staticmethod
     def idToEnum(id):
-        for w in Weapon:
-            if w.id == int(id):
-                return w
+        for a in Armor:
+            if a.id == int(id):
+                return a
 
     @staticmethod
     def toEnum(string):
-        for w in Weapon:
-            if w.string.lower() == string.lower():
-                return w
+        for a in Armor:
+            if a.string.lower() == string.lower():
+                return a
 
     @property
     def cstring(self):
@@ -35,8 +33,8 @@ class Weapon(Enum):
     def __str__(self):
         return self.string[0].capitalize()+self.string[1:]
 
-class WeaponEntry(Base):
-    __tablename__ = 'user_weapons'
+class ArmorEntry(Base):
+    __tablename__ = 'user_armor'
 
     id = Column(Integer(), primary_key=True)
     name = Column(String())

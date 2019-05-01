@@ -10,6 +10,12 @@ class Resource(Enum):
     CLUB = 'club'
     AEGON_TARGARYEN = 'Aegon Targaryen'
     AMARANTHINE = 'Amaranthine'
+    RUBY = 'Ruby'
+    SAPHIRE = 'Saphire'
+    TROLL_SKIN = 'Troll skin'
+    BONE = 'bone'
+    BEAR_HIDE = 'bear hide'
+    MANA_CRYSTAL = 'mana crystal'
 
     def __init__(self, string):
         self.string = string

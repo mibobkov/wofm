@@ -22,6 +22,21 @@ class MonsterType(Enum):
     DEVIL =  'devil',  'You see the devil. You probably do not want to mess with him.\n', \
                         20000, 7000, 15000, 4000, 8000
     #                      HP|mn_dmg|mx_dmg|gold| exp
+    BEAR =   'bear',   'You see a bear. You are clearly in his territory and he looks angry.\n', \
+                          200,    10,   40,   12,  45
+    #                      HP|mn_dmg|mx_dmg|gold| exp
+    TROLL =   'troll',   'You see a troll. Big and fat, at least this one doesn\'t regenerate.\n', \
+                         4000,    30,   40,  400, 180
+    #                      HP|mn_dmg|mx_dmg|gold| exp
+    SKELETON = 'skeleton', 'You see a skeleton. He is young and fresh, but dangerous nonetheless.\n', \
+                          100,    30,   60,   10,  30
+    #                      HP|mn_dmg|mx_dmg|gold| exp
+    ZOMBIE = 'zombie', 'You see a zombie. Dead and rotting, yet very durable\n', \
+                          500,    20,   30,   30, 100
+    #                      HP|mn_dmg|mx_dmg|gold| exp
+    LICH = 'lich', 'You see a lich. This abomination is crazy powerful\n', \
+                         8000,   200,   800,2000,1000
+    #                      HP|mn_dmg|mx_dmg|gold| exp
     def __init__(self, mname, text, health, min_damage, max_damage, gold, exp):
         self.mname = mname
         self.text = text
@@ -66,17 +81,6 @@ class Monster(Base):
         self.name = MonsterType.mname
         self.health = self.maxhealth
 
-    # def __init__(self, user_id, name, text, health, mindamage, maxdamage, gold, exp):
-    #     self.user_id = user_id
-    #     self.gold = gold
-    #     self.exp = exp
-    #     self.maxhealth = health
-    #     self.mindamage = mindamage
-    #     self.maxdamage = maxdamage
-    #     self.text = text
-    #     self.name = name
-    #     self.health = self.maxhealth
-
     def get_gold(self):
         return random.randint(int(self.gold*0.5), int(self.gold*1.5))
 
@@ -106,5 +110,10 @@ loot_rates = {MonsterType.RAT: {Resource.MEAT: 1},
            MonsterType.SPIDER: {Resource.AMARANTHINE: 0.4, Resource.AEGON_TARGARYEN: 0.2},
            MonsterType.WOLF : {Resource.PELT: 1, Resource.AMARANTHINE: 0.4, Resource.AEGON_TARGARYEN: 0.2 },
            MonsterType.DEVIL : {},
-           MonsterType.ORC : {Resource.MEAT: 0.4, Resource.AEGON_TARGARYEN: 0.4}
+           MonsterType.ORC : {Resource.MEAT: 0.4, Resource.AEGON_TARGARYEN: 0.4},
+           MonsterType.BEAR: {Resource.MEAT: 1, Resource.BEAR_HIDE: 1, Resource.AEGON_TARGARYEN: 0.3},
+           MonsterType.TROLL: {Resource.TROLL_SKIN: 0.7},
+           MonsterType.SKELETON: {Resource.BONE: 1},
+           MonsterType.ZOMBIE: {},
+           MonsterType.LICH: {Resource.RUBY: 1, Resource.SAPHIRE: 0.3, Resource.MANA_CRYSTAL: 1},
            }

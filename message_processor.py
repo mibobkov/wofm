@@ -2,9 +2,10 @@ from locations import *
 from user import User, UserStatus
 from monster import Monster
 from copy import copy, deepcopy
-from resource_entry import ResourceEntry, Resource
+from resource_entry import ResourceEntry
 from quotes import Quotes
 from weapon_entry import Weapon, WeaponEntry
+import random
 
 class MessageProcessor:
     def __init__(self, entityManager, messageSender):
@@ -19,19 +20,18 @@ class MessageProcessor:
     def set_user_name(self, user, message):
         user.set_name(message)
         user.status = UserStatus.READY
-        self.ms.send_message(user.chat_id, user.stats_text() + 'You are {} now\n'.format(message), keyboard=actionsin[user.location])
+        self.ms.send_message(user.chat_id, user.stats_text() + 'You are {} now\n'.format(message), keyboard=user.location.actions)
 
     def spawn_monsters(self, chat_id, location):
         r = random.random()
         acc = 0
-        for i in range(0, len(monsterSpawnRates[location])):
-            if acc + monsterSpawnRates[location][i] > r:
-                mp = monsterParams[i]
-                monster = Monster(chat_id, *mp)
+        for mon in location.monsterSpawnRates:
+            if acc + location.monsterSpawnRates[mon] > r:
+                monster = Monster(chat_id, mon)
                 self.entityManager.add(monster)
                 return monster
             else:
-                acc += monsterSpawnRates[location][i]
+                acc += location.monsterSpawnRates[mon]
         return None
 
     def delete_monster(self, chat_id):
@@ -41,35 +41,16 @@ class MessageProcessor:
 
     def generateLocationActions(self, user):
         monster = self.entityManager.getEntityByField(Monster, 'user_id', user.chat_id)
-        actions = deepcopy(actionsin[user.location])
+        actions = deepcopy(user.location.actions)
         if user.status == UserStatus.FIGHTING or user.status == UserStatus.DUELLING:
             return fightactions
         if user.status == UserStatus.DUELLING_ATTACKED:
             return [[]]
-        if monster != None:
+        if monster:
             actions = [['Fight monster']] + actions
         if user.location == Location.ARENA and user.status == UserStatus.READY:
             actions += [['Duel']]
         return actions
-
-    # def go_to_location(self, user, message):
-    #     if Location.toEnum(message) in [Location.toEnum(x) for x in user.location.paths]:
-    #         self.delete_monster(user.chat_id)
-    #         user.location = Location.toEnum(message)
-    #         user.status = UserStatus.READY
-    #         spawned_monster = self.spawn_monsters(user.chat_id, user.location)
-    #         actions = self.generateLocationActions(user)
-    #         self.ms.send_message(user.chat_id, user.stats_text() + user.location.text +'\n' + ('' if not spawned_monster else spawned_monster.text), keyboard=actions)
-
-    # def choose_location(self, user, message):
-    #     user.status = UserStatus.GOING
-    #     text = ''
-    #     for loc in pathkeyboards[user.location]:
-    #         location = Location.toEnum(loc[0])
-    #         location_id = location.id
-    #         text += location.emoji+location.cstring + ' /go_' + str(location_id) + '\n'
-    #     self.ms.send_message(user.chat_id, 'Where do you want to go?\n' + text, keyboard=pathkeyboards[user.location])
-
 
     def fight_monster(self, user, message):
         monster = self.entityManager.getEntityByField(Monster, 'user_id', user.chat_id)

@@ -67,6 +67,8 @@ class Location(Enum):
         self.string = string
         self.paths = paths
         self.id = id
+        self.monsterSpawnRates = {}
+        self.actions = []
 
     @staticmethod
     def idToEnum(id):
@@ -99,47 +101,29 @@ class Location(Enum):
         return prettypaths
 
     @property
+    def pathKeyboard(self):
+        path = self.prettypaths
+        pathKeyboard = []
+        for place in path:
+            pathKeyboard.append([place])
+        return pathKeyboard
+
+    @property
     def cstring(self):
         return self.string[0].capitalize()+self.string[1:]
 
-actionsin = {}
-actionsin[Location.VILLAGE] = []
-actionsin[Location.ARENA] = []
-actionsin[Location.FOREST] = []
-actionsin[Location.LAKE] = []
-actionsin[Location.TOWN] = []
-actionsin[Location.FOUNTAIN] = [['Drink from the fountain']]
-actionsin[Location.MIELEE_FOREST] = []
-actionsin[Location.MIELEE_FOREST_HUT] = []
-actionsin[Location.DOGO_VILLAGE] = []
-actionsin[Location.HOUSE_OF_THE_GREAT_DOGO] = [['Speak to the Great Dogo']]
-actionsin[Location.DOGO_POND] = []
-actionsin[Location.WEAPON_SHOP] = [['Trade']]
-for place in actionsin:
-    actionsin[place] += ['Inventory'], ['Leaderboard']
+Location.FOUNTAIN.actions = [['Drink from the fountain']]
+Location.HOUSE_OF_THE_GREAT_DOGO.actions = [['Speak to the Great Dogo']]
+Location.WEAPON_SHOP.actions = [['Trade']]
+for loc in Location:
+    loc.actions += ['Inventory'], ['Leaderboard']
 
 
-from monster import *
-monsterParams = [rat_params, goblin_params, spider_params, wolf_params, devil_params, orc_params]
-monsterSpawnRates = {}
-monsterSpawnRates[Location.VILLAGE] = [0, 0.2, 0, 0, 0, 0.6]
-monsterSpawnRates[Location.ARENA] = [0, 0, 0, 0, 0, 0]
-monsterSpawnRates[Location.FOREST] = [0.2, 0.15, 0.2, 0.1, 0, 0.2]
-monsterSpawnRates[Location.LAKE] = [0, 0.3, 0.2, 0.05, 0, 0.1]
-monsterSpawnRates[Location.TOWN] = [0, 0, 0, 0, 0, 0]
-monsterSpawnRates[Location.FOUNTAIN] = [0, 0, 0, 0, 0, 0]
-monsterSpawnRates[Location.MIELEE_FOREST] = [0, 0, 0.1, 0.05, 0, 0]
-monsterSpawnRates[Location.MIELEE_FOREST_HUT] = [0, 0, 0, 0, 0, 0]
-monsterSpawnRates[Location.DOGO_VILLAGE] = [0, 0, 0, 0, 0, 0]
-monsterSpawnRates[Location.HOUSE_OF_THE_GREAT_DOGO] = [0, 0, 0, 0, 0, 0]
-monsterSpawnRates[Location.DOGO_POND] = [0, 0, 0, 0, 1, 0]
-monsterSpawnRates[Location.WEAPON_SHOP] = [0, 0, 0, 0, 0, 0]
-
-pathkeyboards = {}
-for location in Location:
-    path = location.prettypaths
-    pathkeyboards[location] = []
-    for place in path:
-        pathkeyboards[location].append([place])
+from monster import MonsterType
+Location.VILLAGE.monsterSpawnRates = {MonsterType.GOBLIN: 0.2, MonsterType.ORC: 0.6}
+Location.FOREST.monsterSpawnRates = {MonsterType.RAT: 0.2,  MonsterType.SPIDER: 0.2, MonsterType.WOLF: 0.1, MonsterType.ORC: 0.2}
+Location.LAKE.monsterSpawnRates = {MonsterType.GOBLIN: 0.3, MonsterType.SPIDER: 0.2, MonsterType.WOLF: 0.05, MonsterType.ORC: 0.1}
+Location.MIELEE_FOREST.monsterSpawnRates = {MonsterType.SPIDER:0.1, MonsterType.WOLF:0.05}
+Location.DOGO_POND.monsterSpawnRates = {MonsterType.DEVIL: 1}
 
 fightactions = [['Attack']]

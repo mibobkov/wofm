@@ -221,21 +221,21 @@ class MessageProcessor:
         resources = self.entityManager.getAllByField(ResourceEntry, 'user_id', user.chat_id)
         weapons = self.entityManager.getAllByField(WeaponEntry, 'user_id', user.chat_id)
         armor = self.entityManager.getAllByField(ArmorEntry, 'user_id', user.chat_id)
-        text = 'Resources:\n'
+        text = '<b>Resources:</b>\n'
         for r in resources:
             text += '{} x {}\n'.format(str(r.resource), r.quantity)
         text += '------------\n\n'
-        text += 'Weapons:\n'
+        text += '<b>Weapons:</b>\n'
         for w in weapons:
             text += '/equip_w{} {} x {}\n'.format(Weapon.toEnum(w.name).id, w.name, w.quantity)
         text += '------------\n'
 
-        text += 'Armor:\n'
+        text += '<b>Armor:</b>\n'
         for a in armor:
             print(a.name)
             text += '/equip_a{} {} x {}\n'.format(Armor.toEnum(a.name).id, a.name, a.quantity)
         text += '------------\n'
-        self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
+        self.ms.send_message(user.chat_id, text, keyboard=self.generateLocationActions(user))
 
     def speak_to_great_dogo(self, user, message):
         if user.location != Location.HOUSE_OF_THE_GREAT_DOGO:
@@ -254,9 +254,12 @@ class MessageProcessor:
         self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
 
     def trade(self, user, message):
-        if user.location != Location.WEAPON_SHOP:
+        if user.location == Location.WEAPON_SHOP:
+            items = [Weapon.DAGGER, Weapon.SCIMITAR, Weapon.SWORD, Weapon.SHARP_SWORD, Weapon.GREAT_SWORD, Weapon.SWORD_OF_DAWN]
+        elif user.location == Location.ARMOR_SHOP:
+            items = [ Armor.LEATHER_JACKET, Armor.CHAIN_MAIL, Armor.FULL_PLATE_ARMOR, Armor.MITHRIL_ARMOR]
+        else:
             return
-        items = [Weapon.DAGGER, Weapon.SCIMITAR, Weapon.SWORD, Weapon.SHARP_SWORD, Weapon.GREAT_SWORD, Weapon.SWORD_OF_DAWN, Armor.LEATHER_JACKET, Armor.CHAIN_MAIL, Armor.FULL_PLATE_ARMOR, Armor.MITHRIL_ARMOR]
         text = 'Greetings traveller, what do you wanna buy?\n'
         for i in items:
             text += '/buy_{}{} {}: {} gold\n'.format('w' if i.__class__ == Weapon else 'a', i.id, i.cstring, i.base_cost)

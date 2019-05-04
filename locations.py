@@ -58,7 +58,7 @@ class Location(Enum):
                 11
     WEAPON_SHOP = 'Weapon shop', \
                   'You are in a weapon shop, preparing to spend your last money on exorbitantly overpriced iWeapons.\n', \
-                  {'S': None, 'N': None, 'W': 'town', 'E': None}, \
+                  {'S': None, 'N': None, 'W': 'town', 'E': 'armor shop'}, \
                   u'\U0001F5E1', \
                   12
     DEEP_FOREST   = 'deep forest', \
@@ -81,6 +81,11 @@ class Location(Enum):
                {'S': None, 'N': 'cemetry', 'W': None, 'E': None}, \
                u'\U000026B0', \
                16
+    ARMOR_SHOP = 'Armor shop', \
+                  'You are in an armor shop.\n', \
+                  {'S': None, 'N': None, 'W': 'weapon shop', 'E': None}, \
+                  u'\U0001F6E1', \
+                  17
     def __init__(self, string, text, paths, emoji, id):
         self.emoji = emoji
         self.text = text
@@ -135,6 +140,7 @@ class Location(Enum):
 Location.FOUNTAIN.actions = [['Drink from the fountain']]
 Location.HOUSE_OF_THE_GREAT_DOGO.actions = [['Speak to the Great Dogo']]
 Location.WEAPON_SHOP.actions = [['Trade']]
+Location.ARMOR_SHOP.actions = [['Trade']]
 for loc in Location:
     loc.actions = loc.actions + [['Stats', 'Inventory', 'Leaderboard']]
 

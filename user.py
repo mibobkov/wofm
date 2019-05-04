@@ -119,14 +119,14 @@ class User(Base):
         self.levelled_up = False
 
         return u'\U0001F466''<b>{}</b>\n'.format(self.name) + \
-               u'\U000026A1'"Level: {}\n".format(self.level) + \
-               u'\U00002764'"Health: {}/{}\n".format(self.health, self.max_health) + \
-               u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + \
-               u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, int(self.next_level_req())) + \
-               u'\U0001F4B0'"Gold: {}\n".format(self.gold) + \
-               '{}'.format('Equipped weapon: {}\n'.format(u'\U0001F5E1' + Weapon.idToEnum(self.equipped_weapon).cstring) if self.equipped_weapon else '') + \
-               '{}'.format('Equipped armor: {}\n'.format(u'\U0001F5E1' + Armor.idToEnum(self.equipped_armor).cstring) if self.equipped_armor else '') + \
-               u"{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
+               u'\U000026A1'"<code>Level: {}</code>\n".format(self.level) + \
+               u'\U00002764'"<code>Health:{}/{}</code>\n".format(self.health, self.max_health) + \
+               u'\U0001F535'"<code>Mana:  {}/{}</code>\n".format(self.mana, self.max_mana) + \
+               u'\U0001F4A1'"<code>Exp:   {}/{}</code>\n".format(self.exp, int(self.next_level_req())) + \
+               u'\U0001F4B0'"<code>Gold:  {}</code>\n".format(self.gold) + \
+               '{}'.format(u'\U0001F5E1' +'<code>Weapon: {}</code>\n'.format(Weapon.idToEnum(self.equipped_weapon).cstring) if self.equipped_weapon else '') + \
+               '{}'.format(u'\U0001F6E1' +'<code>Armor: {}</code>\n'.format(Armor.idToEnum(self.equipped_armor).cstring) if self.equipped_armor else '') + \
+               u"{}<code>Location: {}</code>\n".format(self.location.emoji, self.location.cstring) + \
                 levelled_up_text + '\n' + \
                 self.location_text()
     def battle_text(self):

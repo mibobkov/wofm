@@ -23,9 +23,11 @@ class User(Base):
     __tablename__ = 'users'
     chat_id = Column(Integer, primary_key=True)
     location = Column(sqEnum(Location))
+    base_max_health = Column(Integer)
     max_health = Column(Integer)
     health = Column(Integer)
     mana = Column(Integer)
+    base_max_mana = Column(Integer)
     max_mana = Column(Integer)
     name = Column(String(50))
     status= Column(sqEnum(UserStatus))
@@ -39,12 +41,18 @@ class User(Base):
     levelled_up = Column(Boolean)
     equipped_weapon = Column(Integer)
     equipped_armor = Column(Integer)
+    stat_points = Column(Integer)
+    strength = Column(Integer)
+    intelligence = Column(Integer)
+    endurance = Column(Integer)
 
     def __init__(self, chat_id):
         self.chat_id = chat_id
         self.location = Location.VILLAGE
         self.max_health = 100
+        self.base_max_health = 100
         self.health = 100
+        self.base_max_mana = 100
         self.mana = 100
         self.max_mana = 100
         self.name = ""
@@ -52,6 +60,10 @@ class User(Base):
         self.fighting = None
         self.mindamage = 2
         self.maxdamage = 4
+        self.strength = 0
+        self.intelligence = 0
+        self.endurance = 0
+        self.stat_points = 0
         self.exp = 0
         self.gold = 0
         self.level = 1
@@ -85,12 +97,20 @@ class User(Base):
     def level_up(self):
         self.level += 1
         self.levelled_up = True
-        self.max_health = int(100*(1.08**(self.level-1)))
+        self.stat_points += 3
+        self.base_max_health = int(100*(1.04**(self.level-1)))
+        self.max_health = self.base_max_health + self.endurance*5
+        self.max_mana = self.base_max_mana + self.intelligence*5
         self.health = self.max_health
-        self.max_mana += 10
         self.mana = self.max_mana
-        self.mindamage = 2 + self.level + ((self.level-1)*(self.level))//10
-        self.maxdamage = 4 + 2*self.level + 2*((self.level-1)*(self.level))//10
+        self.mindamage = 2 + self.strength
+        self.maxdamage = 4 + self.strength*2
+
+    def recalc(self):
+        self.max_health = self.base_max_health + self.endurance*5
+        self.max_mana = self.base_max_mana + self.intelligence*5
+        self.mindamage = 2 + self.strength
+        self.maxdamage = 4 + self.strength*2
 
     def stats_text(self):
         levelled_up_text = ''
@@ -104,8 +124,8 @@ class User(Base):
                u'\U0001F535'"Mana: {}/{}\n".format(self.mana, self.max_mana) + \
                u'\U0001F4A1'"Exp: {}/{}\n".format(self.exp, int(self.next_level_req())) + \
                u'\U0001F4B0'"Gold: {}\n".format(self.gold) + \
-               u'\U0001F5E1''{}'.format('Equipped weapon: {}\n'.format(Weapon.idToEnum(self.equipped_weapon).cstring) if self.equipped_weapon else '') + \
-               u'\U0001F5E1''{}'.format('Equipped armor: {}\n'.format(Armor.idToEnum(self.equipped_armor).cstring) if self.equipped_armor else '') + \
+               '{}'.format('Equipped weapon: {}\n'.format(u'\U0001F5E1' + Weapon.idToEnum(self.equipped_weapon).cstring) if self.equipped_weapon else '') + \
+               '{}'.format('Equipped armor: {}\n'.format(u'\U0001F5E1' + Armor.idToEnum(self.equipped_armor).cstring) if self.equipped_armor else '') + \
                u"{}Location: {}\n".format(self.location.emoji, self.location.cstring) + \
                 levelled_up_text + '\n' + \
                 self.location_text()

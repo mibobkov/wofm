@@ -46,6 +46,13 @@ def buy(bot, update):
 def equip(bot, update):
     mp.equip(update.message.chat_id, update.message.text)
 
+def inc_str(bot, update):
+    mp.inc(update.message.chat_id, update.message.text, parameter='str')
+def inc_int(bot, update):
+    mp.inc(update.message.chat_id, update.message.text, parameter='int')
+def inc_end(bot, update):
+    mp.inc(update.message.chat_id, update.message.text, parameter='end')
+
 start_handler = CommandHandler('start', start)
 message_handler = MessageHandler([Filters.text], message)
 broadcast_handler = CommandHandler('broadcast', broadcast)
@@ -72,6 +79,13 @@ for i in range(0, 100):
 
 for i in range(0, 100):
     h = CommandHandler('equip_a' + str(i), equip)
+    dispatcher.add_handler(h)
+
+    h = CommandHandler('inc_str', inc_str)
+    dispatcher.add_handler(h)
+    h = CommandHandler('inc_int', inc_int)
+    dispatcher.add_handler(h)
+    h = CommandHandler('inc_end', inc_end)
     dispatcher.add_handler(h)
 
 updater.start_polling()

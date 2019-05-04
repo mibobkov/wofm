@@ -74,7 +74,7 @@ class MessageProcessor:
         damage_received = monster.get_damage()
         damage_received = user.receive_damage(damage_received)
         monster.receive_damage(damage_dealt)
-        text = ( u'\U00002764''{} Health: {}/{}\n\n'.format(monster.name, monster.health, monster.maxhealth) +
+        text = ( u'\U00002764''{} Health: {}/{}\n\n'.format(monster.name.capitalize(), monster.health, monster.maxhealth) +
                 'You dealt <b>{} damage</b> and received <b>{} damage</b>.\n').format(damage_dealt, damage_received)
         if user.health == 0:
             user.die()
@@ -262,6 +262,19 @@ class MessageProcessor:
             text += '/buy_{}{} {}: {} gold\n'.format('w' if i.__class__ == Weapon else 'a', i.id, i.cstring, i.base_cost)
         self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
 
+    def display_stats(self, user, message):
+        inc_str_text = '/inc_str' if user.stat_points else ''
+        inc_int_text = '/inc_int' if user.stat_points else ''
+        inc_end_text = '/inc_end' if user.stat_points else ''
+        text = 'Free stat points: {}\n'.format(user.stat_points)
+        text += 'Strength: {} {}\n'.format(user.strength, inc_str_text)
+        text += 'Intelligence: {} {}\n'.format(user.intelligence, inc_int_text)
+        text += 'Endurance: {} {}\n'.format(user.endurance, inc_end_text)
+        self.ms.send_message(user.chat_id, user.stats_text() + text, keyboard=self.generateLocationActions(user))
+
+
+
+
     #######################
     ## Command handlers: ##
     #######################
@@ -300,6 +313,28 @@ class MessageProcessor:
             else:
                 self.ms.send_message(user.chat_id, 'Need more gold!\n', self.generateLocationActions(user))
         self.entityManager.commit()
+
+    def inc(self, chat_id, message, parameter=None):
+        user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
+        if not user:
+            self.register_user(chat_id)
+            self.entityManager.commit()
+            return
+
+        if parameter == None:
+            return
+        elif parameter == 'str':
+            user.strength += 1
+            user.stat_points -= 1
+        elif parameter == 'int':
+            user.intelligence += 1
+            user.stat_points -= 1
+        elif parameter == 'end':
+            user.endurance += 1
+            user.stat_points -= 1
+        user.recalc()
+        self.entityManager.commit()
+        self.ms.send_message(user.chat_id, 'Stat increased!\n', keyboard = self.generateLocationActions(user))
 
     def equip(self, chat_id, message):
         user = self.entityManager.getEntityByField(User, 'chat_id', chat_id)
@@ -350,6 +385,7 @@ class MessageProcessor:
             elif message == 'Speak to the Great Dogo': self.speak_to_great_dogo(user, message)
             elif message == 'Drink from the fountain': self.drink_from_the_fountain(user, message)
             elif message == 'Trade':                   self.trade(user, message)
+            elif message == 'Stats':                   self.display_stats(user, message)
         else:
             self.ms.send_message(user.chat_id, user.stats_text(), keyboard=self.generateLocationActions(user))
         self.entityManager.commit()
@@ -382,7 +418,7 @@ class MessageProcessor:
             user.status = UserStatus.READY
             spawned_monster = self.spawn_monsters(user.chat_id, user.location)
             actions = self.generateLocationActions(user)
-            self.ms.send_message(user.chat_id, user.stats_text() + user.location.text +'\n' + ('' if not spawned_monster else spawned_monster.text), keyboard=actions)
+            self.ms.send_message(user.chat_id, user.stats_text() + user.location.emoji+user.location.text +'\n' + ('' if not spawned_monster else u'\U0001F47E'+spawned_monster.text), keyboard=actions)
         else:
             print('some error')
         self.entityManager.commit()

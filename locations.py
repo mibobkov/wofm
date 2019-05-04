@@ -17,49 +17,49 @@ class Location(Enum):
                u'\U0001F93A', \
                3
     LAKE     = 'lake', \
-               'You are near a giant lake.',\
+               'You are near a giant lake.\n',\
                {'S': None, 'N': None, 'W': 'forest', 'E': 'town'}, \
                u'\U0001F4A7', \
                4
     TOWN     = 'town', \
-               'You are in a small town.',\
+               'You are in a small town.\n',\
                {'S': 'fountain', 'N': 'Mielee forest', 'W': 'lake', 'E': 'Weapon shop'}, \
                u'\U0001F3E0', \
                5
     FOUNTAIN = 'fountain', \
-               'You are near a small magical fountain. They say if you drink from it, your strength will be restored.', \
+               'You are near a small magical fountain. They say if you drink from it, your strength will be restored.\n', \
                {'S': None, 'N': 'town', 'W': None, 'E': None}, \
                u'\U0001F4A7', \
                6
     MIELEE_FOREST = 'Mielee forest', \
-                    'You are in the Mielee forest. Its nice and fresh and it seems like one can stay here forever.', \
+                    'You are in the Mielee forest. Its nice and fresh and it seems like one can stay here forever.\n', \
                     {'S': 'town', 'N': 'Mielee forest hut', 'W': None, 'E': None}, \
                     u'\U0001F332', \
                     7
     MIELEE_FOREST_HUT = 'Mielee forest hut', \
-                      'Abandoned hut, where travellers can stay and relax.', \
+                      'Abandoned hut, where travellers can stay and relax.\n', \
                         {'S': 'Mielee forest', 'N': 'Dogo village', 'W': None, 'E': None}, \
                         u'\U0001F3E0', \
                       8
     DOGO_VILLAGE = 'Dogo village', \
-                   'You are in a dogo village. Dogos seem to be very friendly creatures and quite hardworking.', \
+                   'You are in a dogo village. Dogos seem to be very friendly creatures and quite hardworking.\n', \
                    {'S': 'Mielee forest hut', 'N': None, 'W': 'Dogo pond', 'E': 'House of the Great Dogo'}, \
                    u'\U0001F3E0', \
                    9
     HOUSE_OF_THE_GREAT_DOGO = 'House of the Great Dogo', \
-                                'You are in a house of the Great Dogo, the most respected and influential figure in this town.', \
+                                'You are in a house of the Great Dogo, the most respected and influential figure in this town.\n', \
                               {'S': None, 'N': None, 'W': 'Dogo village', 'E': None}, \
                               u'\U0001F3E0', \
                                 10
     DOGO_POND = 'Dogo Pond', \
-                'You approach an oddly shaped dark pond, that dogos seem to avoid and never look at.', \
+                'You approach an oddly shaped dark pond, that dogos seem to avoid and never look at.\n', \
                 {'S': None, 'N': None, 'W': None, 'E': 'Dogo village'}, \
-                u'\U0001F3E0', \
+                u'\U0001F4A7', \
                 11
     WEAPON_SHOP = 'Weapon shop', \
-                  'You are in a weapon shop, preparing to spend your last money on exorbitantly overpriced iWeapons.', \
+                  'You are in a weapon shop, preparing to spend your last money on exorbitantly overpriced iWeapons.\n', \
                   {'S': None, 'N': None, 'W': 'town', 'E': None}, \
-                  u'\U0001F3E0', \
+                  u'\U0001F5E1', \
                   12
     DEEP_FOREST   = 'deep forest', \
                'You went deeper into the forest. It became darker and more menacing\n', \
@@ -69,17 +69,17 @@ class Location(Enum):
     ANCIENT_RUINS  = 'ancient ruins', \
                'You approached ruins of an ancient fort. You feel uneasy.\n', \
                {'S': None, 'N': 'deep forest', 'W': None, 'E': 'cemetry'}, \
-               u'\U0001F332', \
+               u'\U0001F3DB', \
                14
     CEMETRY   = 'cemetry', \
                'You see a vast cemetry and feel an aura of evil and malevolence.\n', \
                {'S': 'tomb', 'N': None, 'W': 'ancient ruins', 'E': None}, \
-               u'\U0001F332', \
+               u'\U000026B0', \
                15
     TOMB      = 'tomb', \
                'You see a tomb. Evil beings seem to occupy it.\n', \
                {'S': None, 'N': 'cemetry', 'W': None, 'E': None}, \
-               u'\U0001F332', \
+               u'\U000026B0', \
                16
     def __init__(self, string, text, paths, emoji, id):
         self.emoji = emoji
@@ -136,7 +136,7 @@ Location.FOUNTAIN.actions = [['Drink from the fountain']]
 Location.HOUSE_OF_THE_GREAT_DOGO.actions = [['Speak to the Great Dogo']]
 Location.WEAPON_SHOP.actions = [['Trade']]
 for loc in Location:
-    loc.actions += ['Inventory'], ['Leaderboard']
+    loc.actions = loc.actions + [['Stats', 'Inventory', 'Leaderboard']]
 
 
 from monster import MonsterType

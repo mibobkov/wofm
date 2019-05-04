@@ -52,6 +52,10 @@ class MonsterType(Enum):
             if m.mname.lower() == string.lower():
                 return m
 
+    @property
+    def cstring(self):
+        return self.mname.capitalize()
+
     def __str__(self):
         return self.string.capitalize()
 
